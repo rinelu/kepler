@@ -1,0 +1,41 @@
+# Compiled Object Files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+*.out.*
+
+# Binary files
+*.bin
+
+# Debugging files
+*.dSYM/
+*.debug
+
+# Build directories
+build/
+bin/
+Debug/
+Release/
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files (if applicable)
+*.vscode/
+*.idea/
+*.cproject
+*.project
+*.sublime-workspace
+*.sublime-project
+
+# Dependency files
+*.d
+
+# Backup files
+*~
+*.bak
+*.swp
