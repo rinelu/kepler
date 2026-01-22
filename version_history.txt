@@ -1,0 +1,156 @@
+Kepler – Revision History
+================================
+
+-------------------------------------------
+v0.2.0 – Scalable Gravity & Better Defaults
+-------------------------------------------
+
+This version focuses on fixing the biggest limitation of v0.1.0: gravity.
+The old N² gravity system was fine for testing, but it didn’t scale and
+made larger simulations impractical. v0.2.0 replaces it with a faster
+approach and improves how bodies behave out of the box.
+
+Gravity & Simulation
+- Replaced the brute-force N² gravity system with a Barnes–Hut octree.
+- Gravity now scales roughly O(n log n), making large body counts feasible.
+- Barnes–Hut traversal preserves the same “each body feels all others”
+  mental model while approximating distant masses.
+- Added configurable softening and theta parameters to stabilize forces.
+- Gravity logic now lives in a dedicated system, replacing the old
+  test physics system entirely.
+- Simulation remains fully deterministic under fixed timesteps.
+
+Automatic Velocity Initialization
+- Removed the need to manually assign orbital velocities.
+- Added automatic initial velocity assignment based on surrounding mass.
+- Bodies now naturally form orbits instead of collapsing immediately.
+- Works for simple two-body systems as well as multi-body clusters.
+- Velocity initialization is generic and does not rely on parent/child
+  hierarchies or hardcoded orbits.
+
+World & Body Updates
+- Simplified body setup by removing orbit-specific helpers.
+- Bodies now only need position, mass, and radius to behave reasonably.
+- Cleaned up physics-related fields that were only used by the old system.
+
+Architecture Improvements
+- Physics responsibilities are more clearly separated from rendering
+  and world management.
+- Gravity, integration, and initialization are handled by explicit systems.
+- System scheduling order was adjusted to better reflect data flow.
+
+Performance
+- Large simulations with hundreds or thousands of bodies are now practical.
+- Gravity cost scales much better compared to v0.1.0.
+- Reduced unnecessary per-frame work in physics code paths.
+
+Stability & Fixes
+- Fixed several edge cases in gravity calculations:
+  - Self-interaction
+  - Zero-distance singularities
+  - Invalid mass values
+- Improved numerical stability when running at higher time scales.
+- Added additional assertions around physics and world iteration.
+
+Known Issues / Limitations
+- Barnes–Hut tree is rebuilt every step (no caching yet).
+- Octree memory is not pooled and may be optimized later.
+- Physics integration is still not energy-conserving over long runs.
+- No collision handling or body merging yet.
+- No floating-origin system for extremely large coordinate ranges.
+
+Summary
+v0.2.0 makes the engine usable for real simulations instead of just demos.
+Gravity scales, bodies behave sensibly without manual setup, and the core
+architecture remains clean and deterministic. This version sets the stage
+for more advanced physics, larger worlds, and better numerical stability
+going forward.
+
+--------------------------------
+v0.1.0 – Initial Engine
+--------------------------------
+
+This release marks the first functional milestone of the Kepler 3D celestial
+simulation engine. The focus of v0.1.0 is on establishing a solid, deterministic
+engine foundation rather than feature completeness.
+
+Core Architecture
+- Introduced the App layer coordinating configuration, services, time, camera,
+  scheduler, world, and renderer.
+- Implemented a fixed-timestep simulation loop with pause, single-step, and
+  time scaling support.
+- Added a deterministic system scheduler with explicit execution order.
+
+World & Entity System
+- Implemented a fixed-capacity world container using stable 32-bit WorldID
+  handles (index + generation).
+- Added safe creation, removal, and iteration of celestial bodies.
+- Introduced a Body data model supporting transform, mass, velocity, rotation,
+  and rendering data.
+- Fixed critical WorldID issues:
+  - Prevented invalid ID generation (index 0, generation 0).
+  - Ensured IDs never alias freed slots.
+- Corrected world insertion logic to iterate capacity instead of count.
+
+Rendering
+- Integrated raylib-based renderer with 3D camera support.
+- Implemented celestial body rendering using a shared sphere mesh and custom
+  planet shaders.
+- Added basic lighting uniforms (time, radius, color, light direction).
+- Introduced a render pipeline separating renderer, render_world, and
+  celestial_render layers.
+
+Camera System
+- Replaced FPS-style movement with a professional orbit-based camera model.
+- Implemented orbit, follow, and free camera modes.
+- Added yaw/pitch spherical coordinates with clamped pitch to prevent gimbal
+  lock.
+- Implemented exponential zoom for scale-independent navigation.
+- Added target-centric panning and smooth inspection of celestial bodies.
+- Prepared the camera system for large-scale simulations.
+
+Physics
+- Implemented a deterministic Newtonian N-body gravity system.
+- Added pairwise gravitational force accumulation with softening to prevent
+  singularities.
+- Introduced semi-implicit Euler integration for improved stability.
+- Integrated physics as a scheduled system running on fixed timesteps.
+- Enforced non-zero body mass and added safety guards against invalid physics
+  states.
+
+Time System
+- Implemented a robust time manager supporting:
+  - Fixed and variable timesteps
+  - Time scaling
+  - Pause and single-step simulation
+- Added deterministic step counter for debugging and replay.
+
+Scheduler
+- Implemented a dynamic-array-based system scheduler.
+- Fixed memory corruption caused by incorrect dynamic array usage.
+- Ensured deterministic execution order via explicit system ordering.
+
+Configuration & Logging
+- Added human-readable configuration loading with sane defaults.
+- Implemented a thread-safe, colored logging system with log levels and runtime
+  filtering.
+
+Stability Fixes
+- Fixed multiple segmentation faults caused by:
+  - Incorrect dynamic array usage
+  - Invalid WorldID generation
+  - Zero-mass bodies
+  - Unsafe pointer dereferencing
+- Added assertions and defensive checks to expose invalid engine states early.
+
+Known Limitations
+- Gravity is O(n²) and not yet optimized (no Barnes–Hut).
+- No collision detection or body merging.
+- No floating-origin support for extremely large worlds.
+- Camera clipping planes are static.
+- Physics integrator is not energy-conserving under large time scales.
+
+Summary
+v0.1.0 establishes a clean, deterministic, and extensible foundation for a
+professional-grade 3D celestial simulation engine. Subsequent versions will
+focus on scalability, numerical stability, and advanced simulation features.

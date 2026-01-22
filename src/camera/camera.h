@@ -1,0 +1,36 @@
+#pragma once
+#include <raylib.h>
+#include <raymath.h>
+#include "../world/world.h"
+
+typedef enum {
+    CAMERA_MODE_FREE,     // spectator / debug
+    CAMERA_MODE_ORBIT,    // orbit around a target
+    CAMERA_MODE_FOLLOW    // follow a moving body
+} Kepler_CameraMode;
+
+typedef struct {
+    Camera3D camera;
+    int mode;
+
+    // Physical state
+    Vector3 target;
+    float distance;
+    float yaw;
+    float pitch;
+
+    // Smoothing/Target states (The "Goal" values)
+    Vector3 target_goal;
+    float distance_goal;
+    float yaw_goal;
+    float pitch_goal;
+
+    // Settings
+    float sensitivity;
+    float zoom_speed;
+
+    World* world;
+} CameraState;
+
+void camera_init(CameraState* cam, World* world);
+void camera_update(CameraState* cam, float dt);
