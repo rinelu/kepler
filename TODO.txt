@@ -1,0 +1,118 @@
+Kepler Engine – TODO
+====================
+
+Short-Term (Next Few Versions)
+------------------------------
+
+Physics & Simulation
+- Replace semi-implicit Euler with a symplectic integrator
+  (Leapfrog / Velocity Verlet).
+- Normalize or clamp energy drift when running at high time scales.
+- Add optional per-body damping for long-running stability tests.
+- Improve Barnes–Hut accuracy controls (theta, softening per scale).
+
+Collisions & Merging (MAYBE)
+- Add simple sphere–sphere collision detection.
+- Merge bodies on collision (mass, momentum, radius).
+- Preserve momentum and center of mass during merges.
+- Add optional collision debugging visualization.
+
+World Scaling
+- Add floating-origin support to keep precision stable at large distances.
+- Decide on internal units (meters vs scaled units).
+- Add automatic origin rebasing when camera or focus body moves too far.
+
+Automatic System Setup
+- Improve automatic velocity initialization:
+  - Better tangential direction estimation
+  - Optional eccentricity control
+
+Camera & Interaction
+- Improve camera follow mode stability at high speeds.
+- Add smooth transition between camera modes.
+- Add focus cycling between bodies.
+- Add body selection via mouse picking.
+- Improve camera near/far plane adjustment based on scale.
+
+Rendering & Visuals
+- Improve planet shader:
+  - Better lighting falloff
+  - Simple atmospheric rim lighting
+- Add basic skybox / starfield.
+- Add orbit path visualization (debug + optional render mode).
+- Add velocity and acceleration debug vectors.
+- Improve depth precision for large scenes.
+
+Performance
+- Pool octree nodes to reduce allocations.
+- Optional multithreading for Barnes–Hut build/traversal.
+- Add simple performance counters (step time, body count).
+- Stress-test with 1k+ bodies.
+
+Debug & Tooling
+- Add on-screen debug overlay:
+  - FPS
+  - Simulation step
+  - Body count
+  - Time scale
+- Add pause + inspect mode.
+- Add single-body isolation debugging.
+- Add deterministic replay support (record initial state + inputs).
+
+Mid-Term
+-------------------------------------
+
+Simulation Feel
+- Stable, visually pleasing orbits without manual tuning.
+- Systems remain coherent at high time scales.
+- Bodies don’t randomly explode or decay over time.
+
+User Interaction
+- Click to select a body and focus camera.
+- Scroll to smoothly zoom in/out.
+- Drag to orbit camera around selected body.
+- Toggle orbit paths and debug visuals.
+
+Visual Quality
+- Clean lighting with readable shading.
+- Smooth camera motion at all scales.
+- Clear visual distinction between stars, planets, and small bodies.
+- Starfield background that doesn’t break scale perception.
+
+Engine Polish
+- Remove unused legacy systems.
+- Clean up system boundaries (physics vs world vs render).
+- Reduce engine-level special cases.
+- Make “spawn system and press play” the default experience.
+
+Longer-Term
+-------------------------------
+
+Physics Improvements
+- Add basic tidal forces (optional).
+- Add relativistic correction toggle (purely visual / educational).
+- Better handling of extreme mass ratios.
+
+Data & Persistence
+- Save/load world state.
+- Export simulation snapshots.
+- Scriptable system generation.
+
+Quality of Life
+- Better logging around physics instability.
+- Built-in presets for common systems.
+- Headless simulation mode for stress testing.
+
+Non-Goals (For Now)
+-------------------
+
+- Perfect real-world accuracy.
+- Full astrophysics modeling.
+- Gas dynamics or fluid simulation.
+
+Notes
+-----
+The priority is not realism for its own sake.
+The goal is stability, clarity, and a simulation that feels right
+while staying deterministic and hackable.
+
