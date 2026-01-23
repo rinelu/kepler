@@ -1,6 +1,7 @@
 #pragma once
 
 #include "world.h"
+#include "world_ids.h"
 #include <raymath.h>
 #include <math.h>
 
@@ -38,6 +39,7 @@ static inline Body create_physical_body(const SpawnBodyDesc* desc)
 {
     Body b = {0};
 
+    b.parent = WORLD_ID_INVALID;
     b.visible = true;
     b.mass    = desc->mass;
     b.damping = 0.0f;

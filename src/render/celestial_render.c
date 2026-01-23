@@ -13,8 +13,7 @@ void celestial_render_init(void)
 
     default_planet_shader = LoadShader(
         "assets/shaders/planet.vs",
-        "assets/shaders/planet.fs"
-    );
+        "assets/shaders/planet.fs");
 }
 
 void celestial_render_shutdown(void)

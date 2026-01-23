@@ -1,9 +1,6 @@
 #pragma once
 #include "../app/app.h"
 
-#define BH_THETA 0.6f
-#define SOFTENING 0.01f
-
 typedef struct OctreeNode {
     Vector3 center;
     float half_size;

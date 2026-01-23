@@ -6,8 +6,7 @@ void hierarchy_update(App* app, float dt)
 
     Body* b;
     world_foreach_body(world, b) {
-        if (!world_is_valid(b->parent))
-            continue;
+        if (!world_is_valid(b->parent)) continue;
 
         Body* parent = world_get_body(world, b->parent);
         if (!parent) continue;

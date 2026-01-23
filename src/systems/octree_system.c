@@ -1,4 +1,6 @@
 #include "octree_system.h"
+#include <sched.h>
+#include <stdlib.h>
 
 static OctreeNode* octree_create(Vector3 center, float half)
 {
@@ -78,12 +80,13 @@ static void octree_apply(OctreeNode* node, Body* target, float G)
         return;
 
     Vector3 d = Vector3Subtract(node->com, target->position);
-    float dist2 = Vector3LengthSqr(d) + SOFTENING * SOFTENING;
+    float soft = config()->world.softening;
+    float dist2 = Vector3LengthSqr(d) + soft * soft;
     float dist  = sqrtf(dist2);
 
     float size = node->half_size * 2.0f;
 
-    if (node->body != NULL || (size / dist) < BH_THETA) {
+    if (node->body != NULL || (size / dist) < config()->world.bh_theta) {
         Vector3 accel = Vector3Scale(d, G * node->mass / (dist2 * dist));
         target->acceleration = Vector3Add(target->acceleration, accel);
         return;
@@ -132,7 +135,7 @@ static void octree_free(OctreeNode* node)
 void octree_update(App* app, float dt)
 {
     World* world = app->services.world;
-    float G = app->config.world.gravity_constant;
+    float G = config()->world.gravity_constant;
 
     // Store previous acceleration
     Body* b;
@@ -150,7 +153,8 @@ void octree_update(App* app, float dt)
         count++;
     }
     center = Vector3Scale(center, 1.0f / count);
-    OctreeNode* root = octree_create(center, 5000.0f);
+    // TODO: add variable to config
+    OctreeNode* root = octree_create(center, 5000);
 
     world_foreach_body(world, b) if (b->mass > 0) octree_insert(root, b);
     world_foreach_body(world, b) if (b->mass > 0) octree_apply(root, b, G);

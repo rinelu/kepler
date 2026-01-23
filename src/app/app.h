@@ -16,7 +16,6 @@ typedef struct {
 } AppServices;
 
 typedef struct App {
-    KeplerConfig config;
     AppServices services;
     Time time;
     CameraState camera;

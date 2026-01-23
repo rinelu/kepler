@@ -14,30 +14,30 @@ bool app_init(App* app)
     assert(app);
     LOG_INFO("Initializing application...");
 
-    if (!config_load(&app->config, "assets/config.cfg")) {
+    if (!config_load("assets/config.cfg")) {
         LOG_ERROR("Failed to load configuration.");
         return false;
     }
 
     time_init(&app->time);
-    time_set_scale(&app->time, app->config.sim.time_scale);
-    time_set_paused(&app->time, app->config.sim.paused);
+    time_set_scale(&app->time, config()->sim.time_scale);
+    time_set_paused(&app->time, config()->sim.paused);
 
-    app->services.world = world_create(app->config.world.max_bodies);
+    app->services.world = world_create(config()->world.max_bodies);
     assert(app->services.world);
-    LOG_INFO("World created with max bodies: %d", app->config.world.max_bodies);
+    LOG_INFO("World created with max bodies: %d", config()->world.max_bodies);
 
     app->services.renderer = renderer_create(
-        app->config.render.screen_width,
-        app->config.render.screen_height,
+        config()->sim.screen_width,
+        config()->sim.screen_height,
         "Kepler",
-        app->config.render.vsync);
+        config()->sim.vsync);
     assert(app->services.renderer);
     celestial_render_init();
     LOG_INFO("Renderer initialized: %dx%d, VSync: %s", 
-              app->config.render.screen_width, 
-              app->config.render.screen_height, 
-              app->config.render.vsync ? "enabled" : "disabled");
+              config()->sim.screen_width, 
+              config()->sim.screen_height, 
+              config()->sim.vsync ? "enabled" : "disabled");
 
     camera_init(&app->camera, app->services.world);
     assert(&app->camera);
@@ -53,7 +53,7 @@ bool app_init(App* app)
 
     app_init_world(app);
     app_init_systems(app);
-    world_auto_assign_velocities(app->services.world, app->config.world.gravity_constant, 0.0f, true);
+    world_auto_assign_velocities(app->services.world, config()->world.gravity_constant, 0.0f, true);
 
     return true;
 }

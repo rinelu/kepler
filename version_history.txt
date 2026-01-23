@@ -1,6 +1,35 @@
 Kepler – Revision History
 ================================
 
+----------------------------------------------------------
+v0.4.0 – Global Configuration & Tunable Engine Parameters
+----------------------------------------------------------
+
+This revision introduces a centralized, global configuration system,
+eliminating hard-coded constants and reducing cross-system coupling.
+
+Core Changes
+- Introduced a global EngineConfig (g_config) accessible via config().
+- Removed the need to pass App or Config pointers through systems.
+- Configuration is now loaded once at startup and treated as read-only
+  during runtime.
+
+Validation & Safety
+- Added post-load sanity checks and clamping for all critical values.
+- Invalid or out-of-range values are corrected to safe defaults.
+- Prevents common misconfiguration crashes (zero gravity, invalid theta, etc.).
+
+Architecture Improvements
+- Reduced global coupling by removing config dependencies from App.
+- Systems now read configuration directly where needed.
+- Configuration logic is isolated to core/config.*.
+
+Summary
+v0.4.0 completes the transition from hard-coded engine constants to a
+fully data-driven configuration system. Simulation behavior, performance,
+and stability can now be tuned without touching code, enabling faster
+iteration and safer experimentation.
+
 --------------------------------
 v0.3.0 – Stable Orbits & Camera Unification
 --------------------------------
