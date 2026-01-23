@@ -25,8 +25,6 @@ bool app_init(App* app)
 
     app->services.world = world_create(app->config.world.max_bodies);
     assert(app->services.world);
-    app_init_world(app->services.world);
-    world_auto_assign_velocities(app->services.world, app->config.world.gravity_constant);
     LOG_INFO("World created with max bodies: %d", app->config.world.max_bodies);
 
     app->services.renderer = renderer_create(
@@ -47,32 +45,48 @@ bool app_init(App* app)
 
     app->services.scheduler = scheduler_create();
     assert(app->services.scheduler);
-    app_init_systems(app);
     LOG_INFO("Scheduler created.");
 
     app->should_quit = false;
 
     LOG_INFO("Application initialized successfully.");
 
+    app_init_world(app);
+    app_init_systems(app);
+    world_auto_assign_velocities(app->services.world, app->config.world.gravity_constant, 0.0f, true);
+
     return true;
 }
 
-void app_init_world(World *world)
+void app_init_world(App* app)
 {
-    WorldID sun = spawn_body(world, (Vector3){ 0, 0, 0 }, 5.0f, YELLOW);
-    Body* b = world_get_body(world, sun);
-    b->mass = 10.0f;
+    World *world = app->services.world;
+    SpawnBodyDesc sun = {
+        .name     = "Sun",
+        .mass     = 10.0f,
+        .density  = DENSITY_STAR,
+        .position = {0, 0, 0},
+        .velocity = {0, 0, 0},
+        .base_color = YELLOW
+    };
 
-    WorldID earth = spawn_body(world, (Vector3){ 30, 0, 0 }, 1.0f, BLUE);
-    Body* e = world_get_body(world, earth);
-    e->mass = 1.0f;
+    SpawnBodyDesc earth = {
+        .name     = "Earth",
+        .mass     = 1.0f,
+        .density  = DENSITY_ROCK,
+        .position = {10, 0, 0},
+        .base_color = BLUE
+    };
+
+    WorldID sun_id   = spawn_body(world, &sun);
+    WorldID earth_id = spawn_body(world, &earth);
 }
 
 void app_init_systems(App* app)
 {
     Scheduler* s = app->services.scheduler;
-    scheduler_add_system(s, "octree", octree_update, 100);
     scheduler_add_system(s, "hierarchy", hierarchy_update, 50);
+    scheduler_add_system(s, "octree", octree_update, 100);
 }
 
 void app_handle_input(App* app)
@@ -84,11 +98,7 @@ void app_handle_input(App* app)
     if (IsKeyPressed(KEY_N)) {
         time_step_once(&app->time);
     }
-
-    if (IsKeyPressed(KEY_KP_1)) time_set_scale(&app->time, 1.0f);
-    if (IsKeyPressed(KEY_KP_2)) time_set_scale(&app->time, 0.25f);
-    if (IsKeyPressed(KEY_KP_3)) time_set_scale(&app->time, 4.0f);
-
+ 
     if (IsKeyPressed(KEY_F)) {
         time_set_fixed(&app->time, !app->time.use_fixed_timestep);
     }
@@ -101,7 +111,7 @@ void app_update(App* app)
     camera_update(&app->camera, app->time.real_dt);
 
     while (time_should_step(&app->time)) {
-        scheduler_update(app->services.scheduler, app, app->time.dt);
+        scheduler_update(app->services.scheduler, app, app->time.fixed_dt);
         time_consume_step(&app->time);
     }
 

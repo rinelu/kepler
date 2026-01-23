@@ -26,7 +26,7 @@ typedef struct App {
 
 bool app_init(App* app);
 
-void app_init_world(World* world);
+void app_init_world(App* app);
 void app_init_systems(App* app);
 
 void app_update(App* app);

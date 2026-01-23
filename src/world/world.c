@@ -131,34 +131,51 @@ static Vector3 perpendicular(Vector3 v)
     return Vector3Normalize(Vector3CrossProduct(up, v));
 }
 
-void world_auto_assign_velocities(World* world, float G)
+void world_auto_assign_velocities(World* world, float G, float eccentricity, bool prograde)
 {
+    if (!world) return;
+
     Body* a;
     world_foreach_body(world, a) {
-        Vector3 gravity_dir = {0};
-        float enclosed_mass = 0.0f;
+        if (a->mass <= 0.0f) continue;
+
+        // Find dominant gravitational body
+        Body* dominant = NULL;
+        float max_force = 0.0f;
 
         Body* b;
         world_foreach_body(world, b) {
-            if (a == b) continue;
-            if (b->mass <= 0) continue;
+            if (b == a || b->mass <= 0.0f) continue;
 
             Vector3 d = Vector3Subtract(b->position, a->position);
             float r2 = Vector3LengthSqr(d);
-            if (r2 <= 0.0001f) continue;
+            if (r2 < 1e-6f) continue;
 
-            gravity_dir = Vector3Add(gravity_dir, Vector3Normalize(d));
-            enclosed_mass += b->mass;
+            float force = G * b->mass / r2;
+            if (force > max_force) {
+                max_force = force;
+                dominant = b;
+            }
         }
 
-        if (enclosed_mass <= 0.0f) continue;
+        if (!dominant) continue;
+        if (a->mass >= dominant->mass)
+            continue;
 
-        float r = Vector3Length(gravity_dir);
-        Vector3 dir = Vector3Normalize(gravity_dir);
-        Vector3 tangent = perpendicular(dir);
-        float speed = sqrtf(G * enclosed_mass / fmaxf(r, 0.01f));
+        Vector3 r = Vector3Subtract(a->position, dominant->position);
+        float dist = Vector3Length(r);
+        if (dist < 1e-6f) continue;
 
+        Vector3 n = {0,1,0};
+        if (fabsf(Vector3DotProduct(Vector3Normalize(r), n)) > 0.99f)
+            n = (Vector3){1,0,0};
+
+        Vector3 tangent = Vector3Normalize(Vector3CrossProduct(r, n));
+        if (!prograde)
+            tangent = Vector3Negate(tangent);
+
+        float speed = sqrtf(G * dominant->mass / dist);
         a->velocity = Vector3Scale(tangent, speed);
+
     }
 }
-

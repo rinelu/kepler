@@ -7,7 +7,7 @@ void time_init(Time* t)
 {
     memset(t, 0, sizeof(*t));
 
-    t->fixed_dt = 1.0f / 60.0f;
+    t->fixed_dt = 1.0f / 240.0f;
     t->time_scale = 1.0f;
     t->simulation_enabled = true;
     t->use_fixed_timestep = true;
@@ -32,6 +32,8 @@ void time_begin_frame(Time* t)
                 t->accumulator = TIME_MAX_ACCUMULATED;
         }
         t->dt = t->fixed_dt;
+    }else {
+        t->dt = scaled;
     }
 }
 

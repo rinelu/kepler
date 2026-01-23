@@ -33,7 +33,7 @@ Body* world_get_body(World *world, WorldID id);
 WorldID world_add_body(World *world, const void *body_data);
 void world_remove_body(World *world, WorldID id);
 
-void world_auto_assign_velocities(World* world, float G);
+void world_auto_assign_velocities(World* world, float G, float eccentricity, bool prograde);
 
 #define world_foreach_body(world, body_ptr)                                   \
     for (uint32_t _i = 0; _i < (world)->capacity; ++_i)                       \

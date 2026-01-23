@@ -11,9 +11,10 @@ typedef enum {
 
 typedef struct {
     Camera3D camera;
-    int mode;
+    Kepler_CameraMode mode;
 
-    // Physical state
+    // Orbit / follow target
+    WorldID follow_id;        // body being followed
     Vector3 target;
     float distance;
     float yaw;
@@ -25,12 +26,17 @@ typedef struct {
     float yaw_goal;
     float pitch_goal;
 
+    // FREE camera state
+    Vector3 velocity;
+
     // Settings
     float sensitivity;
     float zoom_speed;
+    float move_speed;
 
     World* world;
 } CameraState;
 
 void camera_init(CameraState* cam, World* world);
+void camera_set_follow(CameraState* cam, WorldID id);
 void camera_update(CameraState* cam, float dt);

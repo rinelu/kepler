@@ -1,6 +1,81 @@
 Kepler – Revision History
 ================================
 
+--------------------------------
+v0.3.0 – Stable Orbits & Camera Unification
+--------------------------------
+
+This release focuses on stabilizing orbital mechanics, improving numerical
+robustness at high time scales, and consolidating the camera system into a
+single, coherent architecture suitable for both simulation and inspection.
+
+Camera System
+- Implemented a unified 3D camera system with three explicit modes:
+  - Free Camera: spectator/debug camera with mouse look and free movement.
+  - Orbit Camera: editor-style orbit camera with smooth rotation, zoom, and pan.
+  - Follow Camera: orbit camera locked to a moving body target.
+- Introduced the CameraState abstraction to centralize camera configuration,
+  smoothing, and mode-specific behavior.
+- Replaced ad-hoc camera math with yaw/pitch-based spherical coordinates for
+  deterministic, gimbal-safe control.
+- Integrated camera targeting with the World and Body systems, enabling
+  physics-aware following of simulated bodies.
+
+Physics Integration
+- Replaced semi-implicit Euler integration with a symplectic integrator
+  (Velocity Verlet / Leapfrog).
+- Introduced half-step velocity integration using stored previous acceleration.
+- Significantly improved energy behavior for long-running orbital simulations.
+- Physics stepping remains fully deterministic under fixed timesteps.
+
+Gravity & Barnes–Hut Improvements
+- Fixed critical Barnes–Hut traversal errors that caused gravitational
+  over-application and unstable motion.
+- Enforced correct Barnes–Hut behavior: node mass is applied OR children are
+  traversed, never both.
+- Moved Barnes–Hut theta (opening angle) to configuration for easier tuning.
+- Updated gravitational softening to scale with node size, preventing
+  close-range force blowups while preserving distant accuracy.
+- Prepared hooks for adaptive theta selection in simulations with large mass
+  disparities.
+
+Orbital Initialization
+- Refined automatic velocity assignment for newly spawned bodies.
+- Orbital velocity is now only assigned to non-dominant (satellite) bodies,
+  preventing central masses from receiving artificial tangential motion.
+- Removed incorrect momentum back-propagation during initialization, allowing
+  gravity alone to conserve momentum.
+- Bodies now form stable orbits without manual velocity tuning or hierarchy
+  assumptions.
+
+Numerical Stability & Control
+- Added optional per-body damping for stress testing and galaxy-scale
+  simulations.
+  - New Body.damping field (typical values: 0.00005–0.001).
+- Improved stability at extreme time scales through optional velocity clamping.
+- Prepared internal hooks for future energy and momentum diagnostics.
+
+System Ordering & Execution
+- Reordered physics system execution to ensure gravity and integration run
+  before hierarchy and transform updates.
+- Prevented parent or transform systems from overwriting physics-driven motion.
+- Clarified system responsibilities and data flow across the simulation step.
+
+Known Limitations
+- Barnes–Hut octree is rebuilt every simulation step (no caching yet).
+- Octree memory is not pooled and may be optimized in a future release.
+- No collision detection, response, or body merging.
+- No floating-origin support for extremely large coordinate ranges.
+
+Summary
+v0.3.0 stabilizes the core orbital simulation and eliminates several subtle
+physics and initialization errors present in earlier versions. With a unified
+camera system, symplectic integration, and corrected Barnes–Hut gravity, Kepler
+can now sustain long-running, visually and numerically stable celestial
+simulations, providing a solid foundation for future work on collisions,
+energy diagnostics, and large-scale world management.
+
+
 -------------------------------------------
 v0.2.0 – Scalable Gravity & Better Defaults
 -------------------------------------------

@@ -13,6 +13,5 @@ void hierarchy_update(App* app, float dt)
         if (!parent) continue;
 
         b->position = Vector3Add(parent->position, b->local_position);
-        b->velocity = Vector3Add(parent->velocity, b->local_velocity);
     }
 }
