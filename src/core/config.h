@@ -31,7 +31,7 @@ typedef struct {
 
 extern EngineConfig g_config;
 
-static const EngineConfig* config(void)
+static EngineConfig* config(void)
 {
     assert(&g_config);
     return &g_config;

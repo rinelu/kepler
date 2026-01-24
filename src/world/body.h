@@ -18,8 +18,11 @@ typedef struct {
     bool use_atmosphere;
     bool use_surface;
     bool use_lighting;
+    bool emits_light;
 
     Color base_color;
+
+    float light_intensity;
     float roughness;
     float metallic;
 

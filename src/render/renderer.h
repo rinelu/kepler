@@ -3,21 +3,35 @@
 #include <stdbool.h>
 #include <raylib.h>
 #include "../world/world.h"
+#include "../camera/camera.h"
+
+typedef struct RenderContext {
+    Camera camera;
+    Matrix view;
+    Matrix proj;
+    Vector3 light_dir;
+    Vector3 camera_pos;
+    float time;
+} RenderContext;
 
 typedef struct{
     int   width;
     int   height;
     bool  vsync;
     Color clear_color;
+
+    RenderContext ctx;
 } Renderer;
 
 Renderer* renderer_create(int width, int height, const char* title, bool vsync);
-void      renderer_destroy(Renderer* renderer);
+RenderContext renderer_build_context(CameraState* camera);
+void renderer_update_context(RenderContext* ctx, CameraState* camera_state);
+void renderer_destroy(Renderer* renderer);
 
-void renderer_begin_frame(Renderer* renderer, Camera camera);
+void renderer_begin_frame(Renderer* renderer);
+void renderer_render_world(Renderer* renderer, const World* world);
+void renderer_render_gui(Renderer* renderer);
 void renderer_end_frame(Renderer* renderer);
-
-void renderer_draw_world(Renderer* renderer, const World* world, Camera camera);
 
 void renderer_resize(Renderer* renderer, int width, int height);
 void renderer_reload_assets(Renderer* renderer);

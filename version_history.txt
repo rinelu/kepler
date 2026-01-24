@@ -1,6 +1,42 @@
 Kepler – Revision History
 ================================
 
+Versioning follows semantic versioning (MAJOR.MINOR.PATCH).
+
+-----------------------------------------------
+v0.5 – ImGui + C++ Integration & Runtime Tuning
+-----------------------------------------------
+
+Changes
+- Added a C++-only GUI layer using Dear ImGui + rlImGui.
+- Core engine remains C; C/C++ are connected via clean interfaces.
+- Switched to CMake for building and tooling support.
+- compile_commands.json is now generated for clangd.
+- Added live configuration panel for world, physics, and simulation
+- Engine config is now editable at runtime (no restart needed)
+- Time scale, pause state, and gravity now update live
+
+Rendering Changes
+- Refactored renderer into clear stages: world + GUI
+- Added RenderContext (camera, matrices, light direction)
+
+Visual Improvements
+- New planet shader with soft Lambert lighting
+- Added proper normal transform using model matrix
+- Introduced basic LOD system for celestial bodies
+
+Simulation & Engine
+- Time system now pulls state directly from config
+- Octree system hardened against empty-world edge cases
+
+Cleanup
+- Removed baked-in config values during init
+- Simplified world spawning logic
+- Small safety and correctness fixes across systems
+
+Summary
+This revision adds a C++ ImGui editor layer on top of the C engine, enabling live tuning of simulation and rendering parameters at runtime. The renderer was refactored to properly separate 3D world rendering from GUI rendering, fixing ImGui visibility and input issues. Configuration values (gravity, time scale, pause state, etc.) are now read live each frame instead of only at startup. Rendering was improved with a new planet shader, lighting cleanup, and basic LOD support. Overall, this turns Kepler from a static simulation into an interactive, tweakable engine prototype.
+
 ----------------------------------------------------------
 v0.4.0 – Global Configuration & Tunable Engine Parameters
 ----------------------------------------------------------

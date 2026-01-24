@@ -9,6 +9,9 @@
 #include "../systems/octree_system.h"
 #include "../systems/hierarchy_system.h"
 
+#include "render/renderer.h"
+
+// TODO: Make AppServices become a global variable :0
 bool app_init(App* app)
 {
     assert(app);
@@ -20,8 +23,6 @@ bool app_init(App* app)
     }
 
     time_init(&app->time);
-    time_set_scale(&app->time, config()->sim.time_scale);
-    time_set_paused(&app->time, config()->sim.paused);
 
     app->services.world = world_create(config()->world.max_bodies);
     assert(app->services.world);
@@ -33,6 +34,7 @@ bool app_init(App* app)
         "Kepler",
         config()->sim.vsync);
     assert(app->services.renderer);
+    app->services.renderer->ctx = renderer_build_context(&app->camera);
     celestial_render_init();
     LOG_INFO("Renderer initialized: %dx%d, VSync: %s", 
               config()->sim.screen_width, 
@@ -61,25 +63,21 @@ bool app_init(App* app)
 void app_init_world(App* app)
 {
     World *world = app->services.world;
-    SpawnBodyDesc sun = {
+    spawn_body(world, &(SpawnBodyDesc){
         .name     = "Sun",
         .mass     = 10.0f,
         .density  = DENSITY_STAR,
         .position = {0, 0, 0},
         .velocity = {0, 0, 0},
         .base_color = YELLOW
-    };
-
-    SpawnBodyDesc earth = {
+    });
+    spawn_body(world, &(SpawnBodyDesc){
         .name     = "Earth",
         .mass     = 1.0f,
         .density  = DENSITY_ROCK,
-        .position = {10, 0, 0},
+        .position = {20, 0, 0},
         .base_color = BLUE
-    };
-
-    WorldID sun_id   = spawn_body(world, &sun);
-    WorldID earth_id = spawn_body(world, &earth);
+    });
 }
 
 void app_init_systems(App* app)
@@ -109,6 +107,7 @@ void app_update(App* app)
     assert(app);
     time_begin_frame(&app->time);
     camera_update(&app->camera, app->time.real_dt);
+    renderer_update_context(&app->services.renderer->ctx, &app->camera);
 
     while (time_should_step(&app->time)) {
         scheduler_update(app->services.scheduler, app, app->time.fixed_dt);
@@ -120,8 +119,9 @@ void app_update(App* app)
 
 void app_render(App* app)
 {
-    renderer_begin_frame(app->services.renderer, app->camera.camera);
-    renderer_draw_world(app->services.renderer, app->services.world, app->camera.camera);
+    renderer_begin_frame(app->services.renderer);
+    renderer_render_world(app->services.renderer, app->services.world);
+    renderer_render_gui(app->services.renderer);
     renderer_end_frame(app->services.renderer);
 }
 

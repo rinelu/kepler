@@ -136,6 +136,7 @@ void octree_update(App* app, float dt)
 {
     World* world = app->services.world;
     float G = config()->world.gravity_constant;
+    if (world_body_count(world) == 0) return;
 
     // Store previous acceleration
     Body* b;
@@ -152,6 +153,7 @@ void octree_update(App* app, float dt)
         center = Vector3Add(center, b->position);
         count++;
     }
+    if (count == 0) return;
     center = Vector3Scale(center, 1.0f / count);
     // TODO: add variable to config
     OctreeNode* root = octree_create(center, 5000);

@@ -1,4 +1,5 @@
 #include "time.h"
+#include "core/config.h"
 #include <string.h>
 
 float GetFrameTime();
@@ -7,14 +8,15 @@ void time_init(Time* t)
 {
     memset(t, 0, sizeof(*t));
 
-    t->fixed_dt = 1.0f / 240.0f;
-    t->time_scale = 1.0f;
+    t->fixed_dt           = 1.0f / 240.0f;
     t->simulation_enabled = true;
     t->use_fixed_timestep = true;
 }
 
 void time_begin_frame(Time* t)
 {
+    t->time_scale = config()->sim.time_scale;
+    t->paused     = config()->sim.paused;
     t->real_dt = GetFrameTime();
 
     if (!t->simulation_enabled) {
@@ -76,11 +78,6 @@ void time_step_once(Time* t)
 {
     t->single_step = true;
     t->paused = false;
-}
-
-void time_set_scale(Time* t, float scale)
-{
-    t->time_scale = scale;
 }
 
 void time_set_fixed(Time* t, bool fixed)
