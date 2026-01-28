@@ -1,4 +1,9 @@
 #pragma once
-#include "../app/app.h"
+#include <stddef.h>
+#include <raylib.h>
+#include "octree.h"
+#include "world/body.h"
 
-void physics_system_update(App* app, float dt);
+void physics_integrate( PhysicsBodyView* bodies, int count, float dt);
+void physics_step(GravBodyView* grav, PhysicsBodyView* phys, int count, float dt, const OctreeConfig* cfg);
+void physics_system_update(float dt);

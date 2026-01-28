@@ -3,9 +3,49 @@ Kepler – Revision History
 
 Versioning follows semantic versioning (MAJOR.MINOR.PATCH).
 
------------------------------------------------
-v0.5 – ImGui + C++ Integration & Runtime Tuning
------------------------------------------------
+----------------------------------------------------------
+v0.6.0 – Diagnostics, Introspection, and Engine Visibility
+----------------------------------------------------------
+
+This version focuses on understanding what the simulation is actually doing,
+not just what it looks like on screen. As the engine grows more complex, it
+became necessary to expose internal state and numerical behavior directly.
+
+Simulation Diagnostics
+- Added tracking for total system energy (kinetic + potential).
+- Added aggregate linear and angular momentum tracking.
+- Values are sampled per fixed simulation step for determinism.
+- Helps identify integrator drift and unstable configurations.
+
+Integrator & Stability
+- Added basic energy drift monitoring over long runs.
+- Exposed more integrator-related values for inspection and tuning.
+- Improved safety checks around invalid or exploding physics states.
+
+Barnes–Hut Visibility
+- Added runtime statistics for the Barnes–Hut octree:
+  - Node count
+  - Tree depth
+  - Traversal cost
+- Optional debug rendering of octree structure for inspection.
+- Makes theta tuning and approximation behavior easier to reason about.
+
+Engine & Tooling
+- Clearer separation between simulation state and render-only data.
+- Reduced hidden coupling between systems that relied on implicit state.
+- Added ImGui panels for inspecting physics and engine internals.
+
+Known Limitations
+- Diagnostics add overhead and are not intended for release builds.
+- Octree caching and pooling are still experimental.
+- No collision or body merging yet.
+
+Summary
+v0.6.0 makes Kepler easier to reason about and debug.
+
+-------------------------------------------------
+v0.5.0 – ImGui + C++ Integration & Runtime Tuning
+------------------------------------------------
 
 Changes
 - Added a C++-only GUI layer using Dear ImGui + rlImGui.

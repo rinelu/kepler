@@ -1,9 +1,6 @@
 #pragma once
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
-#include <string.h>
-#include <time.h>
 #include <pthread.h>
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -91,17 +88,17 @@ static void default_handler(LogLevel lvl, const char* message) {
 
 static LogHandler handler = default_handler;
 
-void set_handler(LogHandler h) {
+static void set_handler(LogHandler h) {
     handler = h ? h : default_handler;
 }
 
-void set_level(LogLevel lvl) {
+static void set_level(LogLevel lvl) {
     min_level = lvl;
 }
 
-void log_write(LogLevel lvl, const char* fmt, ...) PRINTF_FORMAT(2, 3);
+static void log_write(LogLevel lvl, const char* fmt, ...) PRINTF_FORMAT(2, 3);
 
-void log_write(LogLevel lvl, const char* fmt, ...) {
+static void log_write(LogLevel lvl, const char* fmt, ...) {
     if (lvl < min_level || !handler) return;
 
 #if LOG_THREAD_SAFE

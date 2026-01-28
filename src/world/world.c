@@ -38,6 +38,29 @@ World* world_create(uint32_t max_bodies)
     return world;
 }
 
+void world_build_physics_views(World* world, GravBodyView* grav, PhysicsBodyView* phys, int* out_count)
+{
+    int i = 0;
+    Body* b;
+    world_foreach_body(world, b) {
+        grav[i] = (GravBodyView){
+            .position     = &b->position,
+            .acceleration = &b->acceleration,
+            .mass         = b->mass
+        };
+
+        phys[i] = (PhysicsBodyView){
+            .position     = &b->position,
+            .velocity     = &b->velocity,
+            .acceleration = &b->acceleration,
+            .mass         = &b->mass,
+            .damping      = &b->damping
+        };
+        i++;
+    }
+    *out_count = i;
+}
+
 void world_destroy(World* world)
 {
     if (!world) return;
@@ -48,8 +71,6 @@ void world_destroy(World* world)
 
 void world_clear(World* world)
 {
-    assert(world);
-
     for (uint32_t i = 0; i < world->capacity; ++i) {
         world->items[i].alive = false;
         world->items[i].generation++;
@@ -58,20 +79,8 @@ void world_clear(World* world)
     world->count = 0;
 }
 
-void world_update(World* world, float dt)
-{
-    (void)world;
-    (void)dt;
-
-    /* TODO:
-       Systems (gravity, orbit, etc.) operate directly on bodies.
-       This exists as a hook for future world-level logic.
-    */
-}
-
 uint32_t world_body_count(const World* world)
 {
-    assert(world);
     return world->count;
 }
 
@@ -88,7 +97,6 @@ Body* world_get_body(World* world, WorldID id)
 
 WorldID world_add_body(World* world, const void* body_data)
 {
-    assert(world);
     assert(body_data);
 
     for (uint32_t i = 0; i < world->capacity; ++i) {
@@ -110,8 +118,6 @@ WorldID world_add_body(World* world, const void* body_data)
 
 void world_remove_body(World* world, WorldID id)
 {
-    assert(world);
-
     if (!world_id_matches(world, id)) return;
 
     uint32_t index = world_id_index(id);
@@ -120,62 +126,4 @@ void world_remove_body(World* world, WorldID id)
     slot->alive = false;
     slot->generation++;
     world->count--;
-}
-
-static Vector3 perpendicular(Vector3 v)
-{
-    Vector3 up = {0, 1, 0};
-    if (fabsf(Vector3DotProduct(v, up)) > 0.99f)
-        up = (Vector3){1, 0, 0};
-
-    return Vector3Normalize(Vector3CrossProduct(up, v));
-}
-
-void world_auto_assign_velocities(World* world, float G, float eccentricity, bool prograde)
-{
-    if (!world) return;
-
-    Body* a;
-    world_foreach_body(world, a) {
-        if (a->mass <= 0.0f) continue;
-
-        // Find dominant gravitational body
-        Body* dominant = NULL;
-        float max_force = 0.0f;
-
-        Body* b;
-        world_foreach_body(world, b) {
-            if (b == a || b->mass <= 0.0f) continue;
-
-            Vector3 d = Vector3Subtract(b->position, a->position);
-            float r2 = Vector3LengthSqr(d);
-            if (r2 < 1e-6f) continue;
-
-            float force = G * b->mass / r2;
-            if (force > max_force) {
-                max_force = force;
-                dominant = b;
-            }
-        }
-
-        if (!dominant) continue;
-        if (a->mass >= dominant->mass)
-            continue;
-
-        Vector3 r = Vector3Subtract(a->position, dominant->position);
-        float dist = Vector3Length(r);
-        if (dist < 1e-6f) continue;
-
-        Vector3 n = {0,1,0};
-        if (fabsf(Vector3DotProduct(Vector3Normalize(r), n)) > 0.99f)
-            n = (Vector3){1,0,0};
-
-        Vector3 tangent = Vector3Normalize(Vector3CrossProduct(r, n));
-        if (!prograde)
-            tangent = Vector3Negate(tangent);
-
-        float speed = sqrtf(G * dominant->mass / dist);
-        a->velocity = Vector3Scale(tangent, speed);
-
-    }
 }

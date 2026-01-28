@@ -1,5 +1,3 @@
 #pragma once
-#include "../app/app.h"
-#include <raymath.h>
 
-void hierarchy_update(App* app, float dt);
+void hierarchy_update(float dt);

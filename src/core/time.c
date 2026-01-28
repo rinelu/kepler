@@ -8,15 +8,14 @@ void time_init(Time* t)
 {
     memset(t, 0, sizeof(*t));
 
-    t->fixed_dt           = 1.0f / 240.0f;
+    t->time_scale         = config()->sim.time_scale;
+    t->fixed_dt           = 1.0f / 60.0f;
     t->simulation_enabled = true;
     t->use_fixed_timestep = true;
 }
 
 void time_begin_frame(Time* t)
 {
-    t->time_scale = config()->sim.time_scale;
-    t->paused     = config()->sim.paused;
     t->real_dt = GetFrameTime();
 
     if (!t->simulation_enabled) {
@@ -25,7 +24,6 @@ void time_begin_frame(Time* t)
     }
 
     float scaled = t->real_dt * t->time_scale;
-
 
     if (t->use_fixed_timestep) {
         if (!t->paused || t->single_step) {

@@ -44,21 +44,32 @@ typedef struct Body {
     WorldID parent;
     bool visible;
 
-    Vector3 local_position;
-    Vector3 local_velocity;
     Vector3 position;
     Vector3 velocity;
     Vector3 acceleration;
-    Vector3 prev_acceleration;
 
-    float   mass;
-    float   radius;
-    float   damping;
+    float mass;
+    float radius;
+    float damping;
 
     BodyRotation rotation;
     BodyRender render;
     Trail trail;
 } Body;
+
+typedef struct {
+    Vector3* position;
+    Vector3* acceleration;
+    float mass;
+} GravBodyView;
+
+typedef struct {
+    Vector3* position;
+    Vector3* velocity;
+    Vector3* acceleration;
+    float*   mass;
+    float*   damping;
+} PhysicsBodyView;
 
 static void trail_push(Body* b)
 {

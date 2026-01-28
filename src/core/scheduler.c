@@ -69,13 +69,12 @@ void scheduler_add_system(Scheduler* scheduler, const char* name, UpdateFn updat
     );
 }
 
-void scheduler_update(Scheduler* scheduler, App* app, float dt) {
+void scheduler_update(Scheduler* scheduler, float dt) {
     assert(scheduler);
-    assert(app);
 
     da_foreach(ScheduledSystem, sys, scheduler) {
         if (!sys->enabled) continue;
-        sys->update(app, dt);
+        sys->update(dt);
     }
 }
 

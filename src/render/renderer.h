@@ -4,6 +4,8 @@
 #include <raylib.h>
 #include "../world/world.h"
 #include "../camera/camera.h"
+#include "predict/predict_state.h"
+#include "render/predict_render.h"
 
 typedef struct RenderContext {
     Camera camera;
@@ -29,7 +31,7 @@ void renderer_update_context(RenderContext* ctx, CameraState* camera_state);
 void renderer_destroy(Renderer* renderer);
 
 void renderer_begin_frame(Renderer* renderer);
-void renderer_render_world(Renderer* renderer, const World* world);
+void renderer_render_world(Renderer* renderer, const World* world, PredictState* predict);
 void renderer_render_gui(Renderer* renderer);
 void renderer_end_frame(Renderer* renderer);
 

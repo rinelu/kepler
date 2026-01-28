@@ -1,5 +1,4 @@
 #pragma once
-
 #include "world_ids.h"
 #include <raylib.h>
 #include <raymath.h>
@@ -20,10 +19,9 @@ typedef struct {
 } World;
 
 World *world_create(uint32_t max_bodies);
+void world_build_physics_views(World* world, GravBodyView* grav, PhysicsBodyView* phys, int* out_count);
 void world_destroy(World *world);
 void world_clear(World *world);
-
-void world_update(World *world, float dt);
 
 uint32_t world_body_count(const World *world);
 
@@ -32,8 +30,6 @@ Body* world_get_body(World *world, WorldID id);
 
 WorldID world_add_body(World *world, const void *body_data);
 void world_remove_body(World *world, WorldID id);
-
-void world_auto_assign_velocities(World* world, float G, float eccentricity, bool prograde);
 
 #define world_foreach_body(world, body_ptr)                                   \
     for (uint32_t _i = 0; _i < (world)->capacity; ++_i)                       \

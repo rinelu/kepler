@@ -42,13 +42,12 @@ static inline Body create_physical_body(const SpawnBodyDesc* desc)
     b.parent  = WORLD_ID_INVALID;
     b.visible = true;
     b.mass    = desc->mass;
-    b.damping = 0.0f;
+    b.damping = 0.05f,   // strong at start
 
     b.acceleration = (Vector3){0};
-    b.prev_acceleration = (Vector3){0};
 
     b.position = desc->position;
-    b.velocity = desc->velocity;
+    b.velocity = Vector3Zero();
 
     float physical_radius = compute_radius_from_mass(desc->mass, desc->density);
     b.radius = physical_radius;

@@ -2,6 +2,10 @@
 #include <assert.h>
 #include <stdbool.h>
 
+#define PREDICT_MAX_STEPS 100000
+// OCTREE
+#define NEAR_FIELD_FACTOR 2.5f
+
 typedef struct {
     float gravity_constant;
     float bh_theta;
@@ -9,11 +13,6 @@ typedef struct {
     float max_velocity;
     int max_bodies;
 } WorldConfig;
-
-typedef struct {
-    bool  enabled;
-    float damping_default;
-} PhysicsConfig;
 
 typedef struct {
     int  screen_width;
@@ -25,13 +24,12 @@ typedef struct {
 
 typedef struct {
     WorldConfig   world;
-    PhysicsConfig physics;
     SimConfig     sim;
 } EngineConfig;
 
 extern EngineConfig g_config;
 
-static EngineConfig* config(void)
+static inline EngineConfig* config(void)
 {
     assert(&g_config);
     return &g_config;

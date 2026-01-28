@@ -2,16 +2,14 @@
 
 int main(void)
 {
-    App app = {0};
+    if (!app_init()) return 1;
 
-    if (!app_init(&app)) return 1;
-
-    while (!app.should_quit) {
-        app_handle_input(&app);
-        app_update(&app);
-        app_render(&app);
+    while (!app_should_close()) {
+        app_handle_input();
+        app_update();
+        app_render();
     }
 
-    app_shutdown(&app);
+    app_shutdown();
     return 0;
 }

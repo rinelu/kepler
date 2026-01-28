@@ -2,139 +2,160 @@
 #include <assert.h>
 #include <raylib.h>
 
-#include "../core/log.h"
-#include "../world/body_factory.h"
-#include "../render/celestial_render.h"
-
-#include "../systems/octree_system.h"
-#include "../systems/hierarchy_system.h"
-
+#include "core/config.h"
+#include "core/engine.h"
+#include "core/log.h"
+// #include "systems/relax_system.h"
+#include "world/body_factory.h"
 #include "render/renderer.h"
+#include "systems/hierarchy_system.h"
+#include "systems/physics_system.h"
+#include "world/orbit/orbit.h"
 
-// TODO: Make AppServices become a global variable :0
-bool app_init(App* app)
+bool app_init()
 {
-    assert(app);
     LOG_INFO("Initializing application...");
+    Engine* e       = engine();
+    EngineConfig* c = config();
 
     if (!config_load("assets/config.cfg")) {
         LOG_ERROR("Failed to load configuration.");
         return false;
     }
 
-    time_init(&app->time);
+    time_init(&e->time);
 
-    app->services.world = world_create(config()->world.max_bodies);
-    assert(app->services.world);
+    e->world = world_create(config()->world.max_bodies);
+    assert(e->world);
     LOG_INFO("World created with max bodies: %d", config()->world.max_bodies);
 
-    app->services.renderer = renderer_create(
+    e->renderer = renderer_create(
         config()->sim.screen_width,
         config()->sim.screen_height,
         "Kepler",
         config()->sim.vsync);
-    assert(app->services.renderer);
-    app->services.renderer->ctx = renderer_build_context(&app->camera);
-    celestial_render_init();
+    assert(e->renderer);
+    e->renderer->ctx = renderer_build_context(&e->camera);
     LOG_INFO("Renderer initialized: %dx%d, VSync: %s", 
               config()->sim.screen_width, 
               config()->sim.screen_height, 
               config()->sim.vsync ? "enabled" : "disabled");
 
-    camera_init(&app->camera, app->services.world);
-    assert(&app->camera);
+    camera_init(&e->camera, e->world);
+    assert(&e->camera);
     LOG_INFO("Camera initialized");
 
-    app->services.scheduler = scheduler_create();
-    assert(app->services.scheduler);
+    e->scheduler = scheduler_create();
+    assert(e->scheduler);
     LOG_INFO("Scheduler created.");
 
-    app->should_quit = false;
+    predict_state_init(&e->predict);
+    assert(&e->predict);
+    LOG_INFO("World prediction initialized.");
 
     LOG_INFO("Application initialized successfully.");
 
-    app_init_world(app);
-    app_init_systems(app);
-    world_auto_assign_velocities(app->services.world, config()->world.gravity_constant, 0.0f, true);
+    app_create_planets(e->world);
+    app_init_systems(e->scheduler);
+
+    orbit_from_positions(e->world);
+    // relaxation_init();
 
     return true;
 }
 
-void app_init_world(App* app)
+bool app_should_close() { return WindowShouldClose(); }
+
+void app_create_planets(World* world)
 {
-    World *world = app->services.world;
     spawn_body(world, &(SpawnBodyDesc){
         .name     = "Sun",
-        .mass     = 10.0f,
         .density  = DENSITY_STAR,
+        .mass     = 100.0f,
         .position = {0, 0, 0},
-        .velocity = {0, 0, 0},
         .base_color = YELLOW
     });
     spawn_body(world, &(SpawnBodyDesc){
         .name     = "Earth",
-        .mass     = 1.0f,
+        .mass     = 5.0f,
         .density  = DENSITY_ROCK,
-        .position = {20, 0, 0},
+        .position = {50, 10, 0},
         .base_color = BLUE
+    });
+
+    spawn_body(world, &(SpawnBodyDesc){
+        .name     = "Mars",
+        .mass     = 10.0f,
+        .density  = DENSITY_ROCK,
+        .position = {80, 0, 0.2f},
+        .base_color = RED
+    });
+    spawn_body(world, &(SpawnBodyDesc){
+        .name     = "Jupiter",
+        .mass     = 25.0f,
+        .density  = DENSITY_ROCK,
+        .position = {100, 30, 0.2f},
+        .base_color = RED
     });
 }
 
-void app_init_systems(App* app)
+void app_init_systems(Scheduler* s)
 {
-    Scheduler* s = app->services.scheduler;
+    // scheduler_add_system(s, "relax",   relaxation_update, 10);
     scheduler_add_system(s, "hierarchy", hierarchy_update, 50);
-    scheduler_add_system(s, "octree", octree_update, 100);
+    scheduler_add_system(s, "physics", physics_system_update, 100);
 }
 
-void app_handle_input(App* app)
+void app_handle_input()
 {
+    Engine* e = engine();
     if (IsKeyPressed(KEY_SPACE)) {
-        time_set_paused(&app->time, !app->time.paused);
+        time_set_paused(&e->time, !e->time.paused);
     }
 
     if (IsKeyPressed(KEY_N)) {
-        time_step_once(&app->time);
+        time_step_once(&e->time);
     }
  
     if (IsKeyPressed(KEY_F)) {
-        time_set_fixed(&app->time, !app->time.use_fixed_timestep);
+        time_set_fixed(&e->time, !e->time.use_fixed_timestep);
     }
 }
 
-void app_update(App* app)
+void app_update()
 {
-    assert(app);
-    time_begin_frame(&app->time);
-    camera_update(&app->camera, app->time.real_dt);
-    renderer_update_context(&app->services.renderer->ctx, &app->camera);
+    Engine* e = engine();
+    time_begin_frame(&e->time);
+    camera_update(&e->camera, e->time.real_dt);
+    renderer_update_context(&e->renderer->ctx, &e->camera);
 
-    while (time_should_step(&app->time)) {
-        scheduler_update(app->services.scheduler, app, app->time.fixed_dt);
-        time_consume_step(&app->time);
+    while (time_should_step(&e->time)) {
+        scheduler_update(e->scheduler, e->time.fixed_dt);
+        time_consume_step(&e->time);
     }
 
-    time_end_frame(&app->time);
+    predict_state_update(&e->predict, e->world);
+    time_end_frame(&e->time);
 }
 
-void app_render(App* app)
+void app_render()
 {
-    renderer_begin_frame(app->services.renderer);
-    renderer_render_world(app->services.renderer, app->services.world);
-    renderer_render_gui(app->services.renderer);
-    renderer_end_frame(app->services.renderer);
+    Engine* e = engine();
+    renderer_begin_frame(e->renderer);
+    renderer_render_world(e->renderer, e->world, &e->predict);
+    renderer_render_gui(e->renderer);
+    renderer_end_frame(e->renderer);
 }
 
-void app_shutdown(App* app)
+void app_shutdown()
 {
-    assert(app);
-
+    Engine* e = engine();
     LOG_INFO("Shutting down application...");
 
-    scheduler_destroy(app->services.scheduler);
-    celestial_render_shutdown();
-    world_destroy(app->services.world);
-    renderer_destroy(app->services.renderer);
+    predict_state_shutdown(&e->predict);
+    scheduler_destroy(e->scheduler);
+    world_destroy(e->world);
+    renderer_destroy(e->renderer);
 
     LOG_INFO("Application shutdown successfully.");
 }

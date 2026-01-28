@@ -1,8 +1,9 @@
 #include "hierarchy_system.h"
+#include "core/engine.h"
 
-void hierarchy_update(App* app, float dt)
+void hierarchy_update(float dt)
 {
-    World* world = app->services.world;
+    World* world = engine()->world;
 
     Body* b;
     world_foreach_body(world, b) {
@@ -10,7 +11,5 @@ void hierarchy_update(App* app, float dt)
 
         Body* parent = world_get_body(world, b->parent);
         if (!parent) continue;
-
-        b->position = Vector3Add(parent->position, b->local_position);
     }
 }

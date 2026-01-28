@@ -29,13 +29,7 @@ void time_end_frame(Time* time);
 bool time_should_step(Time* time);
 void time_consume_step(Time* time);
 
-void time_set_paused(Time* time, bool paused);
 void time_step_once(Time* time);
+void time_set_paused(Time* time, bool paused);
 void time_set_scale(Time* time, float scale);
 void time_set_fixed(Time* time, bool fixed);
-void time_init(Time* time);
-void time_begin_frame(Time* time);
-void time_end_frame(Time* time);
-
-void time_set_scale(Time* time, float scale);
-void time_set_paused(Time* time, bool paused);

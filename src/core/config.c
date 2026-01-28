@@ -5,23 +5,17 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-EngineConfig g_config;
+EngineConfig g_config = {0};
 bool parse_config_file(const char* path, EngineConfig* cfg);
 
 bool config_load(const char* path)
 {
-    memset(&g_config, 0, sizeof(g_config));
-
     /* -------- WORLD DEFAULTS -------- */
     g_config.world.gravity_constant = 1.0f;
     g_config.world.bh_theta         = 0.7f;
     g_config.world.softening        = 0.01f;
     g_config.world.max_velocity     = 0.0f;
     g_config.world.max_bodies       = 1024;
-
-    /* -------- PHYSICS -------- */
-    g_config.physics.enabled        = true;
-    g_config.physics.damping_default = 0.0f;
 
     /* -------- SIM -------- */
     g_config.sim.screen_width  = 1280;
@@ -41,9 +35,6 @@ bool config_load(const char* path)
 
     if (g_config.world.softening < 0.0f)
         g_config.world.softening = 0.0f;
-
-    g_config.physics.damping_default =
-        Clamp(g_config.physics.damping_default, 0.0f, 0.01f);
 
     if (g_config.sim.screen_width <= 0)  g_config.sim.screen_width = 1280;
     if (g_config.sim.screen_height <= 0) g_config.sim.screen_height = 720;
@@ -119,14 +110,6 @@ bool parse_config_file(const char* path, EngineConfig* cfg)
                 cfg->world.max_velocity = strtof(val, NULL);
             else if (strcmp(key, "max_bodies") == 0)
                 cfg->world.max_bodies = atoi(val);
-        }
-
-        /* ---------------- PHYSICS ---------------- */
-        else if (strcmp(section, "physics") == 0) {
-            if (strcmp(key, "enabled") == 0)
-                cfg->physics.enabled = parse_bool(val);
-            else if (strcmp(key, "damping_default") == 0)
-                cfg->physics.damping_default = strtof(val, NULL);
         }
 
         /* ---------------- SIM ---------------- */

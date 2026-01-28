@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "gui/imgui_layer.h"
+#include "render/celestial_render.h"
 #include "rlgl.h"
 
 #include "render_world.h"
@@ -25,23 +26,24 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
     InitWindow(width, height, title);
     assert(IsWindowReady());
 
-    ImGuiLayer_Init();
-
     SetTargetFPS(0);
+
+    ImGuiLayer_Init();
+    celestial_render_init();
 
     return renderer;
 }
 
 void renderer_update_context(RenderContext* ctx, CameraState* camera_state)
 {
-    Camera camera = camera_state->camera;
+    Camera camera   = camera_state->camera;
     ctx->camera     = camera;
     ctx->camera_pos = camera.position;
     ctx->view       = GetCameraMatrix(camera);
 
     float aspect = (float)GetScreenWidth() / (float)GetScreenHeight();
-    ctx->proj = MatrixPerspective(camera.fovy * DEG2RAD, aspect, 0.01f, 100000.0f);
-    ctx->time = GetTime();
+    ctx->proj    = MatrixPerspective(camera.fovy * DEG2RAD, aspect, 0.01f, 100000.0f);
+    ctx->time    = GetTime();
 };
 
 RenderContext renderer_build_context(CameraState* camera)
@@ -56,6 +58,7 @@ void renderer_destroy(Renderer* renderer)
     if (!renderer) return;
 
     ImGuiLayer_Shutdown();
+    celestial_render_shutdown();
     CloseWindow();
     free(renderer);
 }
@@ -68,7 +71,7 @@ void renderer_begin_frame(Renderer* renderer)
     ClearBackground(renderer->clear_color);
 }
 
-void renderer_render_world(Renderer* renderer, const World* world)
+void renderer_render_world(Renderer* renderer, const World* world, PredictState* predict)
 {
     BeginMode3D(renderer->ctx.camera);
     rlEnableDepthTest();
@@ -76,6 +79,10 @@ void renderer_render_world(Renderer* renderer, const World* world)
     rlEnableBackfaceCulling();
 
     render_world(world, &renderer->ctx);
+
+    if (predict->enabled) {
+        predict_render_draw(predict);
+    }
 
     rlDisableBackfaceCulling();
     rlDisableDepthTest();
