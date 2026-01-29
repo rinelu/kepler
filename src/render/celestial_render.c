@@ -11,6 +11,12 @@ static int loc_color;
 static int loc_light;
 static int loc_model;
 
+static int loc_emissive;
+static int loc_light_count;
+static int loc_light_pos;
+static int loc_light_color;
+static int loc_light_intensity;
+
 static Mesh  sphere_mesh[3];
 static Model sphere_model[3];
 static Shader planet_shader;
@@ -32,11 +38,16 @@ void celestial_render_init(void)
         sphere_model[i] = LoadModelFromMesh(sphere_mesh[i]);
 
     planet_shader = LoadShader("assets/shaders/planet.vs", "assets/shaders/planet.fs");
-    loc_mvp   = GetShaderLocation(planet_shader, "mvp");
-    loc_color = GetShaderLocation(planet_shader, "baseColor");
-    loc_light = GetShaderLocation(planet_shader, "lightDir");
-    loc_model = GetShaderLocation(planet_shader, "model");
-}
+    loc_mvp      = GetShaderLocation(planet_shader, "mvp");
+    loc_color    = GetShaderLocation(planet_shader, "baseColor");
+    loc_light    = GetShaderLocation(planet_shader, "lightDir");
+    loc_model    = GetShaderLocation(planet_shader, "model");
+    loc_emissive = GetShaderLocation(planet_shader, "emissiveIntensity");
+    loc_light_count     = GetShaderLocation(planet_shader, "lightCount");
+    loc_light_pos       = GetShaderLocation(planet_shader, "lightPos");
+    loc_light_color     = GetShaderLocation(planet_shader, "lightColor");
+    loc_light_intensity = GetShaderLocation(planet_shader, "lightIntensity");
+    }
 
 void celestial_render_shutdown(void)
 {
@@ -56,8 +67,8 @@ static void render_body(const Body* body, const RenderContext* ctx)
     model->materials[0].shader = planet_shader;
 
     Matrix model_mtx = MatrixMultiply(
-            MatrixScale(body->render.radius, body->render.radius, body->render.radius),
-            MatrixTranslate(body->position.x, body->position.y, body->position.z));
+        MatrixScale(body->render.radius, body->render.radius, body->render.radius),
+        MatrixTranslate(body->position.x, body->position.y, body->position.z));
 
     Matrix mvp = MatrixMultiply(ctx->proj, MatrixMultiply(ctx->view, model_mtx));
 
@@ -67,13 +78,24 @@ static void render_body(const Body* body, const RenderContext* ctx)
         body->render.base_color.b / 255.0f,
         1.0f
     };
+    Vector3 pos[MAX_LIGHTS];
+    Vector3 col[MAX_LIGHTS];
+    float   inten[MAX_LIGHTS];
 
+    for (int i = 0; i < ctx->light_count; i++) {
+        pos[i]   = ctx->lights[i].position;
+        col[i]   = ctx->lights[i].color;
+        inten[i] = ctx->lights[i].intensity;
+    }
     BeginShaderMode(planet_shader);
     SetShaderValueMatrix(planet_shader, loc_mvp, mvp);
-    SetShaderValue(planet_shader, loc_color, color, SHADER_UNIFORM_VEC4);
-    SetShaderValue(planet_shader, loc_light, &ctx->light_dir, SHADER_UNIFORM_VEC3);
     SetShaderValueMatrix(planet_shader, loc_model, model_mtx);
-
+    SetShaderValue(planet_shader, loc_emissive, &body->render.emissive_strength, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(planet_shader, loc_color, color, SHADER_UNIFORM_VEC4);
+    SetShaderValue(planet_shader, loc_light_count, &ctx->light_count, SHADER_UNIFORM_INT);
+    SetShaderValueV(planet_shader, loc_light_pos, pos, SHADER_UNIFORM_VEC3, ctx->light_count);
+    SetShaderValueV(planet_shader, loc_light_color, col, SHADER_UNIFORM_VEC3, ctx->light_count);
+    SetShaderValueV(planet_shader, loc_light_intensity, inten, SHADER_UNIFORM_FLOAT, ctx->light_count);
     DrawMesh(model->meshes[0], model->materials[0], model_mtx);
     EndShaderMode();
 
@@ -81,9 +103,11 @@ static void render_body(const Body* body, const RenderContext* ctx)
         rlDisableDepthMask();
         BeginBlendMode(BLEND_ADDITIVE);
 
+        float zero = 0.0f;
+        SetShaderValue(planet_shader, loc_emissive, &zero, SHADER_UNIFORM_FLOAT);
         Matrix atmo = MatrixMultiply(
-            MatrixScale(body->render.radius * 1.05f, body->render.radius * 1.05f, body->render.radius * 1.05f),
-            MatrixTranslate(body->position.x, body->position.y, body->position.z));
+            MatrixTranslate(body->position.x, body->position.y, body->position.z),
+            MatrixScale(body->render.radius * 1.05f, body->render.radius * 1.05f, body->render.radius * 1.05f));
 
         DrawMesh(model->meshes[0], model->materials[0], atmo);
 

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <raylib.h>
 
+#include "camera/camera.h"
 #include "core/config.h"
 #include "core/engine.h"
 #include "core/log.h"
@@ -11,6 +12,7 @@
 #include "systems/hierarchy_system.h"
 #include "systems/physics_system.h"
 #include "world/orbit/orbit.h"
+#include "world/world.h"
 
 bool app_init()
 {
@@ -58,7 +60,9 @@ bool app_init()
     app_create_planets(e->world);
     app_init_systems(e->scheduler);
 
-    orbit_from_positions(e->world);
+    // orbit_plummer(e->world, 50);
+    // orbit_virial_rotating(e->world);
+    orbit_keplerian(e->world);
     // relaxation_init();
 
     return true;
@@ -68,35 +72,37 @@ bool app_should_close() { return WindowShouldClose(); }
 
 void app_create_planets(World* world)
 {
-    spawn_body(world, &(SpawnBodyDesc){
+    WorldID sun = spawn_body(world, &(BodyParam){
         .name     = "Sun",
         .density  = DENSITY_STAR,
         .mass     = 100.0f,
         .position = {0, 0, 0},
         .base_color = YELLOW
     });
-    spawn_body(world, &(SpawnBodyDesc){
+    body_make_star(world_get_body(world, sun), 10000, 4.0f, 100);
+
+    spawn_body(world, &(BodyParam){
         .name     = "Earth",
-        .mass     = 5.0f,
+        .mass     = 1.0f,
         .density  = DENSITY_ROCK,
-        .position = {50, 10, 0},
+        .position = {45, 0.2f, 0},
         .base_color = BLUE
     });
-
-    spawn_body(world, &(SpawnBodyDesc){
+    spawn_body(world, &(BodyParam){
         .name     = "Mars",
-        .mass     = 10.0f,
+        .mass     = .5f,
         .density  = DENSITY_ROCK,
-        .position = {80, 0, 0.2f},
+        .position = {70, 0, 0.1f},
         .base_color = RED
     });
-    spawn_body(world, &(SpawnBodyDesc){
+    spawn_body(world, &(BodyParam){
         .name     = "Jupiter",
-        .mass     = 25.0f,
+        .mass     = 5.0f,
         .density  = DENSITY_ROCK,
-        .position = {100, 30, 0.2f},
+        .position = {120, 0, 0.4f},
         .base_color = RED
     });
+    camera_set_follow(&engine()->camera, sun);
 }
 
 void app_init_systems(Scheduler* s)

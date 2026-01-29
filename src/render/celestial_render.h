@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../world/world.h"
-#include "raylib.h"
 #include "renderer.h"
 
 void celestial_render_init(void);

@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "gui/imgui_layer.h"
 #include "render/celestial_render.h"
+#include "render/predict_render.h"
 #include "rlgl.h"
 
 #include "render_world.h"

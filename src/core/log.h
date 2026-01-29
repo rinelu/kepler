@@ -125,5 +125,5 @@ static void log_write(LogLevel lvl, const char* fmt, ...) {
 #define LOG_ERROR(...) log_write(ERROR, __VA_ARGS__)
 #define LOG_CRITICAL(...) log_write(CRITICAL, __VA_ARGS__)
 #define LOG_THROW(...) do { LOG_ERROR(__VA_ARGS__); abort(); } while(0)
-#define LOG_TODO(...) do { log_write(TODO, __VA_ARGS__); abort(); } while(0)
+#define LOG_TODO(...) do { log_write(TODO, __VA_ARGS__); } while(0)
 #define LOG_UNREACHABLE(...) do { log_write(UNREACHABLE, __VA_ARGS__); abort(); } while(0)

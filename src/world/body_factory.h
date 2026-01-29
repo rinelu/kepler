@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/log.h"
 #include "world.h"
 #include "world_ids.h"
 #include <raymath.h>
@@ -9,7 +10,7 @@
 #define DENSITY_ROCK   3.0f
 #define DENSITY_GAS    0.5f
 
-#define VISUAL_RADIUS_SCALE 1.5f
+#define VISUAL_RADIUS_SCALE 1
 
 typedef struct {
     const char* name;
@@ -19,8 +20,8 @@ typedef struct {
     Vector3 position;
     Vector3 velocity;
 
-    Color   base_color;   // optional, fallback applied if zero
-} SpawnBodyDesc;
+    Color   base_color;   // fallback applied if alpha == 0
+} BodyParam;
 
 typedef struct {
     const char* vertex;
@@ -35,46 +36,53 @@ static inline float compute_radius_from_mass(float mass, float density)
     return cbrtf((3.0f * volume) / (4.0f * PI));
 }
 
-static inline Body create_physical_body(const SpawnBodyDesc* desc)
+static inline Body create_physical_body(const BodyParam* param)
 {
     Body b = {0};
 
     b.parent  = WORLD_ID_INVALID;
     b.visible = true;
-    b.mass    = desc->mass;
-    b.damping = 0.05f,   // strong at start
 
-    b.acceleration = (Vector3){0};
+    b.mass         = param->mass;
+    b.damping      = 0.05f;
+    b.acceleration = Vector3Zero();
 
-    b.position = desc->position;
-    b.velocity = Vector3Zero();
+    b.position = param->position;
+    b.velocity = param->velocity;
 
-    float physical_radius = compute_radius_from_mass(desc->mass, desc->density);
+    float physical_radius = compute_radius_from_mass(param->mass, param->density);
     b.radius = physical_radius;
 
-    b.trail.head  = 0;
-    b.trail.count = 0;
-
     b.render.radius     = physical_radius * VISUAL_RADIUS_SCALE;
-    b.render.base_color = (desc->base_color.a == 0) ? WHITE : desc->base_color;
+    b.render.base_color = (param->base_color.a == 0) ? WHITE : param->base_color;
 
-    b.render.loc_mvp       = -1;
-    b.render.loc_time      = -1;
-    b.render.loc_radius    = -1;
-    b.render.loc_color     = -1;
-    b.render.loc_light_dir = -1;
+    b.render.use_atmosphere  = false;
+    b.render.emits_light     = false;
+    b.render.light_intensity = 0.0f;
+    b.render.temperature     = 0;
+    b.render.emissive_strength = 0.0f;
 
     return b;
 }
 
-static inline WorldID spawn_body(World* world, const SpawnBodyDesc* desc)
+static inline WorldID spawn_body(World* world, const BodyParam* param)
 {
-    Body body = create_physical_body(desc);
+    Body body = create_physical_body(param);
     return world_add_body(world, &body);
 }
 
-static inline WorldID spawn_body_with_shader(World* world, const SpawnBodyDesc* desc, SpawnBodyShader* shader)
+static inline void body_make_star(Body* b, float intensity, float emissive, float temperature)
 {
+    b->render.emits_light = true;
+    b->render.light_intensity = intensity;
+    b->render.emissive_strength = emissive;
+    b->render.temperature = temperature;
+    LOG_TODO("Star temperature");
+}
+
+static inline WorldID spawn_body_with_shader(World* world, const BodyParam* desc, const SpawnBodyShader* shader)
+{
+    LOG_TODO("Each body shader.");
     Body body = create_physical_body(desc);
     body.render.shader = LoadShader(shader->vertex, shader->fragment);
     return world_add_body(world, &body);

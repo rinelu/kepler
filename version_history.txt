@@ -1,336 +1,112 @@
 Kepler – Revision History
 ================================
+Semantic versioning: MAJOR.MINOR.PATCH
 
-Versioning follows semantic versioning (MAJOR.MINOR.PATCH).
-
-----------------------------------------------------------
-v0.6.0 – Diagnostics, Introspection, and Engine Visibility
-----------------------------------------------------------
-
-This version focuses on understanding what the simulation is actually doing,
-not just what it looks like on screen. As the engine grows more complex, it
-became necessary to expose internal state and numerical behavior directly.
-
-Simulation Diagnostics
-- Added tracking for total system energy (kinetic + potential).
-- Added aggregate linear and angular momentum tracking.
-- Values are sampled per fixed simulation step for determinism.
-- Helps identify integrator drift and unstable configurations.
-
-Integrator & Stability
-- Added basic energy drift monitoring over long runs.
-- Exposed more integrator-related values for inspection and tuning.
-- Improved safety checks around invalid or exploding physics states.
-
-Barnes–Hut Visibility
-- Added runtime statistics for the Barnes–Hut octree:
-  - Node count
-  - Tree depth
-  - Traversal cost
-- Optional debug rendering of octree structure for inspection.
-- Makes theta tuning and approximation behavior easier to reason about.
-
-Engine & Tooling
-- Clearer separation between simulation state and render-only data.
-- Reduced hidden coupling between systems that relied on implicit state.
-- Added ImGui panels for inspecting physics and engine internals.
-
-Known Limitations
-- Diagnostics add overhead and are not intended for release builds.
-- Octree caching and pooling are still experimental.
-- No collision or body merging yet.
-
-Summary
-v0.6.0 makes Kepler easier to reason about and debug.
-
--------------------------------------------------
-v0.5.0 – ImGui + C++ Integration & Runtime Tuning
+------------------------------------------------
+v0.7.0 – Lighting, Orbits, and Physics Stability
 ------------------------------------------------
 
 Changes
-- Added a C++-only GUI layer using Dear ImGui + rlImGui.
-- Core engine remains C; C/C++ are connected via clean interfaces.
-- Switched to CMake for building and tooling support.
-- compile_commands.json is now generated for clangd.
-- Added live configuration panel for world, physics, and simulation
-- Engine config is now editable at runtime (no restart needed)
-- Time scale, pause state, and gravity now update live
+- Multi-light point lighting with distance attenuation
+- Blackbody temperature → RGB for star coloration
+- Emissive stars and atmospheric rim lighting
+- Explicit orbital initializers (Keplerian, virial rotating)
+- Adaptive physics sub-stepping based on max acceleration
+- Automatic switch between N² gravity and Barnes–Hut
+- Simplified body creation and render data cleanup
 
-Rendering Changes
-- Refactored renderer into clear stages: world + GUI
-- Added RenderContext (camera, matrices, light direction)
-
-Visual Improvements
-- New planet shader with soft Lambert lighting
-- Added proper normal transform using model matrix
-- Introduced basic LOD system for celestial bodies
-
-Simulation & Engine
-- Time system now pulls state directly from config
-- Octree system hardened against empty-world edge cases
-
-Cleanup
-- Removed baked-in config values during init
-- Simplified world spawning logic
-- Small safety and correctness fixes across systems
-
-Summary
-This revision adds a C++ ImGui editor layer on top of the C engine, enabling live tuning of simulation and rendering parameters at runtime. The renderer was refactored to properly separate 3D world rendering from GUI rendering, fixing ImGui visibility and input issues. Configuration values (gravity, time scale, pause state, etc.) are now read live each frame instead of only at startup. Rendering was improved with a new planet shader, lighting cleanup, and basic LOD support. Overall, this turns Kepler from a static simulation into an interactive, tweakable engine prototype.
-
-----------------------------------------------------------
-v0.4.0 – Global Configuration & Tunable Engine Parameters
-----------------------------------------------------------
-
-This revision introduces a centralized, global configuration system,
-eliminating hard-coded constants and reducing cross-system coupling.
-
-Core Changes
-- Introduced a global EngineConfig (g_config) accessible via config().
-- Removed the need to pass App or Config pointers through systems.
-- Configuration is now loaded once at startup and treated as read-only
-  during runtime.
-
-Validation & Safety
-- Added post-load sanity checks and clamping for all critical values.
-- Invalid or out-of-range values are corrected to safe defaults.
-- Prevents common misconfiguration crashes (zero gravity, invalid theta, etc.).
-
-Architecture Improvements
-- Reduced global coupling by removing config dependencies from App.
-- Systems now read configuration directly where needed.
-- Configuration logic is isolated to core/config.*.
-
-Summary
-v0.4.0 completes the transition from hard-coded engine constants to a
-fully data-driven configuration system. Simulation behavior, performance,
-and stability can now be tuned without touching code, enabling faster
-iteration and safer experimentation.
+Known Limitations
+- Barnes–Hut violates Newton’s 3rd law
+- No collisions or body merging
+- No floating-origin support
 
 --------------------------------
+v0.6.0 – Diagnostics & Introspection
+--------------------------------
+
+Changes
+- Total energy (K + U) tracking per fixed step
+- Linear and angular momentum tracking
+- Barnes–Hut statistics (node count, depth, traversal cost)
+- Optional octree debug visualization
+- ImGui panels for physics and engine inspection
+
+Known Limitations
+- Diagnostics add runtime overhead
+- Octree caching and pooling are experimental
+
+-----------------------------
+v0.5.0 – ImGui & Runtime Tuning
+-----------------------------
+
+Changes
+- Integrated Dear ImGui via C++ layer
+- Live editing of gravity, time scale, pause state
+- Renderer split into world and GUI passes
+- Introduced RenderContext abstraction
+- Improved planet shader and basic LOD
+
+Known Limitations
+- GUI is editor-only
+- Runtime edits are not persisted
+
+---------------------------------------------
+v0.4.0 – Global Configuration System
+---------------------------------------------
+
+Changes
+- Centralized EngineConfig accessed via config()
+- Removed config plumbing between systems
+- Runtime clamping and validation of values
+- Safer defaults for physics parameters
+
+Known Limitations
+- No runtime hot-reload of configuration
+
+-----------------------------------------
 v0.3.0 – Stable Orbits & Camera Unification
---------------------------------
+-----------------------------------------
 
-This release focuses on stabilizing orbital mechanics, improving numerical
-robustness at high time scales, and consolidating the camera system into a
-single, coherent architecture suitable for both simulation and inspection.
-
-Camera System
-- Implemented a unified 3D camera system with three explicit modes:
-  - Free Camera: spectator/debug camera with mouse look and free movement.
-  - Orbit Camera: editor-style orbit camera with smooth rotation, zoom, and pan.
-  - Follow Camera: orbit camera locked to a moving body target.
-- Introduced the CameraState abstraction to centralize camera configuration,
-  smoothing, and mode-specific behavior.
-- Replaced ad-hoc camera math with yaw/pitch-based spherical coordinates for
-  deterministic, gimbal-safe control.
-- Integrated camera targeting with the World and Body systems, enabling
-  physics-aware following of simulated bodies.
-
-Physics Integration
-- Replaced semi-implicit Euler integration with a symplectic integrator
-  (Velocity Verlet / Leapfrog).
-- Introduced half-step velocity integration using stored previous acceleration.
-- Significantly improved energy behavior for long-running orbital simulations.
-- Physics stepping remains fully deterministic under fixed timesteps.
-
-Gravity & Barnes–Hut Improvements
-- Fixed critical Barnes–Hut traversal errors that caused gravitational
-  over-application and unstable motion.
-- Enforced correct Barnes–Hut behavior: node mass is applied OR children are
-  traversed, never both.
-- Moved Barnes–Hut theta (opening angle) to configuration for easier tuning.
-- Updated gravitational softening to scale with node size, preventing
-  close-range force blowups while preserving distant accuracy.
-- Prepared hooks for adaptive theta selection in simulations with large mass
-  disparities.
-
-Orbital Initialization
-- Refined automatic velocity assignment for newly spawned bodies.
-- Orbital velocity is now only assigned to non-dominant (satellite) bodies,
-  preventing central masses from receiving artificial tangential motion.
-- Removed incorrect momentum back-propagation during initialization, allowing
-  gravity alone to conserve momentum.
-- Bodies now form stable orbits without manual velocity tuning or hierarchy
-  assumptions.
-
-Numerical Stability & Control
-- Added optional per-body damping for stress testing and galaxy-scale
-  simulations.
-  - New Body.damping field (typical values: 0.00005–0.001).
-- Improved stability at extreme time scales through optional velocity clamping.
-- Prepared internal hooks for future energy and momentum diagnostics.
-
-System Ordering & Execution
-- Reordered physics system execution to ensure gravity and integration run
-  before hierarchy and transform updates.
-- Prevented parent or transform systems from overwriting physics-driven motion.
-- Clarified system responsibilities and data flow across the simulation step.
+Changes
+- Unified camera system (free, orbit, follow)
+- Symplectic (Velocity Verlet) integration
+- Fixed Barnes–Hut traversal errors
+- Improved gravitational softening
+- Deterministic orbital initialization
+- Optional per-body damping
 
 Known Limitations
-- Barnes–Hut octree is rebuilt every simulation step (no caching yet).
-- Octree memory is not pooled and may be optimized in a future release.
-- No collision detection, response, or body merging.
-- No floating-origin support for extremely large coordinate ranges.
-
-Summary
-v0.3.0 stabilizes the core orbital simulation and eliminates several subtle
-physics and initialization errors present in earlier versions. With a unified
-camera system, symplectic integration, and corrected Barnes–Hut gravity, Kepler
-can now sustain long-running, visually and numerically stable celestial
-simulations, providing a solid foundation for future work on collisions,
-energy diagnostics, and large-scale world management.
-
-
--------------------------------------------
-v0.2.0 – Scalable Gravity & Better Defaults
--------------------------------------------
-
-This version focuses on fixing the biggest limitation of v0.1.0: gravity.
-The old N² gravity system was fine for testing, but it didn’t scale and
-made larger simulations impractical. v0.2.0 replaces it with a faster
-approach and improves how bodies behave out of the box.
-
-Gravity & Simulation
-- Replaced the brute-force N² gravity system with a Barnes–Hut octree.
-- Gravity now scales roughly O(n log n), making large body counts feasible.
-- Barnes–Hut traversal preserves the same “each body feels all others”
-  mental model while approximating distant masses.
-- Added configurable softening and theta parameters to stabilize forces.
-- Gravity logic now lives in a dedicated system, replacing the old
-  test physics system entirely.
-- Simulation remains fully deterministic under fixed timesteps.
-
-Automatic Velocity Initialization
-- Removed the need to manually assign orbital velocities.
-- Added automatic initial velocity assignment based on surrounding mass.
-- Bodies now naturally form orbits instead of collapsing immediately.
-- Works for simple two-body systems as well as multi-body clusters.
-- Velocity initialization is generic and does not rely on parent/child
-  hierarchies or hardcoded orbits.
-
-World & Body Updates
-- Simplified body setup by removing orbit-specific helpers.
-- Bodies now only need position, mass, and radius to behave reasonably.
-- Cleaned up physics-related fields that were only used by the old system.
-
-Architecture Improvements
-- Physics responsibilities are more clearly separated from rendering
-  and world management.
-- Gravity, integration, and initialization are handled by explicit systems.
-- System scheduling order was adjusted to better reflect data flow.
-
-Performance
-- Large simulations with hundreds or thousands of bodies are now practical.
-- Gravity cost scales much better compared to v0.1.0.
-- Reduced unnecessary per-frame work in physics code paths.
-
-Stability & Fixes
-- Fixed several edge cases in gravity calculations:
-  - Self-interaction
-  - Zero-distance singularities
-  - Invalid mass values
-- Improved numerical stability when running at higher time scales.
-- Added additional assertions around physics and world iteration.
-
-Known Issues / Limitations
-- Barnes–Hut tree is rebuilt every step (no caching yet).
-- Octree memory is not pooled and may be optimized later.
-- Physics integration is still not energy-conserving over long runs.
-- No collision handling or body merging yet.
-- No floating-origin system for extremely large coordinate ranges.
-
-Summary
-v0.2.0 makes the engine usable for real simulations instead of just demos.
-Gravity scales, bodies behave sensibly without manual setup, and the core
-architecture remains clean and deterministic. This version sets the stage
-for more advanced physics, larger worlds, and better numerical stability
-going forward.
+- Barnes–Hut rebuilt every simulation step
+- No collision handling
+- No floating-origin support
 
 --------------------------------
+v0.2.0 – Scalable Gravity
+--------------------------------
+
+Changes
+- Replaced N² gravity with Barnes–Hut octree
+- Configurable theta and softening parameters
+- Automatic initial velocity assignment
+- Deterministic fixed-timestep physics
+
+Known Limitations
+- Not energy-conserving over long runs
+- No octree caching or pooling
+
+-------------------------
 v0.1.0 – Initial Engine
---------------------------------
+-------------------------
 
-This release marks the first functional milestone of the Kepler 3D celestial
-simulation engine. The focus of v0.1.0 is on establishing a solid, deterministic
-engine foundation rather than feature completeness.
-
-Core Architecture
-- Introduced the App layer coordinating configuration, services, time, camera,
-  scheduler, world, and renderer.
-- Implemented a fixed-timestep simulation loop with pause, single-step, and
-  time scaling support.
-- Added a deterministic system scheduler with explicit execution order.
-
-World & Entity System
-- Implemented a fixed-capacity world container using stable 32-bit WorldID
-  handles (index + generation).
-- Added safe creation, removal, and iteration of celestial bodies.
-- Introduced a Body data model supporting transform, mass, velocity, rotation,
-  and rendering data.
-- Fixed critical WorldID issues:
-  - Prevented invalid ID generation (index 0, generation 0).
-  - Ensured IDs never alias freed slots.
-- Corrected world insertion logic to iterate capacity instead of count.
-
-Rendering
-- Integrated raylib-based renderer with 3D camera support.
-- Implemented celestial body rendering using a shared sphere mesh and custom
-  planet shaders.
-- Added basic lighting uniforms (time, radius, color, light direction).
-- Introduced a render pipeline separating renderer, render_world, and
-  celestial_render layers.
-
-Camera System
-- Replaced FPS-style movement with a professional orbit-based camera model.
-- Implemented orbit, follow, and free camera modes.
-- Added yaw/pitch spherical coordinates with clamped pitch to prevent gimbal
-  lock.
-- Implemented exponential zoom for scale-independent navigation.
-- Added target-centric panning and smooth inspection of celestial bodies.
-- Prepared the camera system for large-scale simulations.
-
-Physics
-- Implemented a deterministic Newtonian N-body gravity system.
-- Added pairwise gravitational force accumulation with softening to prevent
-  singularities.
-- Introduced semi-implicit Euler integration for improved stability.
-- Integrated physics as a scheduled system running on fixed timesteps.
-- Enforced non-zero body mass and added safety guards against invalid physics
-  states.
-
-Time System
-- Implemented a robust time manager supporting:
-  - Fixed and variable timesteps
-  - Time scaling
-  - Pause and single-step simulation
-- Added deterministic step counter for debugging and replay.
-
-Scheduler
-- Implemented a dynamic-array-based system scheduler.
-- Fixed memory corruption caused by incorrect dynamic array usage.
-- Ensured deterministic execution order via explicit system ordering.
-
-Configuration & Logging
-- Added human-readable configuration loading with sane defaults.
-- Implemented a thread-safe, colored logging system with log levels and runtime
-  filtering.
-
-Stability Fixes
-- Fixed multiple segmentation faults caused by:
-  - Incorrect dynamic array usage
-  - Invalid WorldID generation
-  - Zero-mass bodies
-  - Unsafe pointer dereferencing
-- Added assertions and defensive checks to expose invalid engine states early.
+Changes
+- Fixed-timestep scheduler
+- World container with stable IDs
+- Basic N-body gravity
+- Orbit-based camera system
+- Shader-based planet rendering
+- Centralized logging and config loading
 
 Known Limitations
-- Gravity is O(n²) and not yet optimized (no Barnes–Hut).
-- No collision detection or body merging.
-- No floating-origin support for extremely large worlds.
-- Camera clipping planes are static.
-- Physics integrator is not energy-conserving under large time scales.
-
-Summary
-v0.1.0 establishes a clean, deterministic, and extensible foundation for a
-professional-grade 3D celestial simulation engine. Subsequent versions will
-focus on scalability, numerical stability, and advanced simulation features.
+- O(n²) gravity
+- No collisions
+- Limited stability at extreme time scales

@@ -1,5 +1,6 @@
 #include "time.h"
 #include "core/config.h"
+#include "raymath.h"
 #include <string.h>
 
 float GetFrameTime();
@@ -23,7 +24,8 @@ void time_begin_frame(Time* t)
         return;
     }
 
-    float scaled = t->real_dt * t->time_scale;
+    float scaled = Clamp(t->real_dt * t->time_scale, 0.0f, t->fixed_dt * 4.0f);
+
 
     if (t->use_fixed_timestep) {
         if (!t->paused || t->single_step) {
