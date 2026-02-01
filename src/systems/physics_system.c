@@ -1,13 +1,10 @@
 #include "physics_system.h"
 #include "core/config.h"
 #include "core/engine.h"
+#include "octree/octree.h"
 #include "raymath.h"
-#include "systems/octree.h"
 #include "world/body.h"
 #include <stdlib.h>
-
-#define MAX_SUBSTEPS 32
-#define ACC_LIMIT    5.0f   // lower = safer, higher = faster
 
 static float max_acceleration(GravBodyView* grav, int count)
 {
@@ -39,7 +36,7 @@ static int compute_substeps(float dt, float max_acc, const OctreeConfig* cfg)
 {
     if (max_acc <= 1e-6f) return 1;
 
-    float safe_dt = sqrtf(cfg->softening / max_acc);
+    float safe_dt = cfg->softening / sqrtf(max_acc);
     int steps = (int)ceilf(dt / safe_dt);
 
     if (steps < 1) steps = 1;
@@ -48,15 +45,20 @@ static int compute_substeps(float dt, float max_acc, const OctreeConfig* cfg)
     return steps;
 }
 
-// TODO: Fix the octree, because its vioalting Newton's 3rd Law
 void compute_gravity(GravBodyView* grav, int count, const OctreeConfig* cfg)
 {
-    if (count < 50) direct_compute_gravity(grav, count, cfg->G, cfg->softening);
-    else octree_compute_gravity(grav, count, cfg);
+    if (count == 0) return;
+    if (count < 50) {
+        direct_compute_gravity(grav, count, cfg->G, cfg->softening);
+        return;
+    }
+    bh_compute_gravity(grav, count, cfg);
 }
 
 void physics_step(GravBodyView* grav, PhysicsBodyView* phys, int count, float dt, const OctreeConfig* cfg)
 {
+    for (int i = 0; i < count; i++) *grav[i].acceleration = (Vector3){0};
+
     compute_gravity(grav, count, cfg);
     float max_a = max_acceleration(grav, count);
     int substeps = compute_substeps(dt, max_a, cfg);

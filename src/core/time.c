@@ -24,18 +24,20 @@ void time_begin_frame(Time* t)
         return;
     }
 
-    float scaled = Clamp(t->real_dt * t->time_scale, 0.0f, t->fixed_dt * 4.0f);
-
+    float scaled_dt = t->real_dt * t->time_scale;
+    float max_frame_dt = t->fixed_dt * TIME_MAX_FRAME_STEPS;
+    scaled_dt = Clamp(scaled_dt, 0.0f, max_frame_dt);
 
     if (t->use_fixed_timestep) {
         if (!t->paused || t->single_step) {
-            t->accumulator += scaled;
+            t->accumulator += scaled_dt;
             if (t->accumulator > TIME_MAX_ACCUMULATED)
                 t->accumulator = TIME_MAX_ACCUMULATED;
         }
+
         t->dt = t->fixed_dt;
-    }else {
-        t->dt = scaled;
+    } else {
+        t->dt = scaled_dt;
     }
 }
 

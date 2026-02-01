@@ -7,6 +7,7 @@
 #include "core/engine.h"
 #include "core/log.h"
 // #include "systems/relax_system.h"
+#include "render/celestial_render.h"
 #include "world/body_factory.h"
 #include "render/renderer.h"
 #include "systems/hierarchy_system.h"
@@ -60,10 +61,12 @@ bool app_init()
     app_create_planets(e->world);
     app_init_systems(e->scheduler);
 
-    // orbit_plummer(e->world, 50);
+    orbit_plummer(e->world, 50);
     // orbit_virial_rotating(e->world);
-    orbit_keplerian(e->world);
+    // orbit_keplerian(e->world);
     // relaxation_init();
+    //
+    celestial_render_init(e->world);
 
     return true;
 }
@@ -79,30 +82,29 @@ void app_create_planets(World* world)
         .position = {0, 0, 0},
         .base_color = YELLOW
     });
-    body_make_star(world_get_body(world, sun), 10000, 4.0f, 100);
+    body_make_star(world_get_body(world, sun), 10000, 1.2f, 100);
 
     spawn_body(world, &(BodyParam){
         .name     = "Earth",
         .mass     = 1.0f,
         .density  = DENSITY_ROCK,
-        .position = {45, 0.2f, 0},
+        .position = {45, 0.2f, 5},
         .base_color = BLUE
     });
     spawn_body(world, &(BodyParam){
         .name     = "Mars",
         .mass     = .5f,
         .density  = DENSITY_ROCK,
-        .position = {70, 0, 0.1f},
+        .position = {70, 1, 0.1f},
         .base_color = RED
     });
-    spawn_body(world, &(BodyParam){
+    WorldID jupiter = spawn_body(world, &(BodyParam){
         .name     = "Jupiter",
         .mass     = 5.0f,
         .density  = DENSITY_ROCK,
-        .position = {120, 0, 0.4f},
-        .base_color = RED
+        .position = {120, 4, 0.4f},
+        .base_color = PURPLE
     });
-    camera_set_follow(&engine()->camera, sun);
 }
 
 void app_init_systems(Scheduler* s)
@@ -132,7 +134,7 @@ void app_update()
 {
     Engine* e = engine();
     time_begin_frame(&e->time);
-    camera_update(&e->camera, e->time.real_dt);
+    camera_update(&e->camera, e->time.dt);
     renderer_update_context(&e->renderer->ctx, &e->camera);
 
     while (time_should_step(&e->time)) {
@@ -146,11 +148,12 @@ void app_update()
 
 void app_render()
 {
-    Engine* e = engine();
-    renderer_begin_frame(e->renderer);
-    renderer_render_world(e->renderer, e->world, &e->predict);
-    renderer_render_gui(e->renderer);
-    renderer_end_frame(e->renderer);
+    Renderer* r = engine()->renderer;
+    renderer_begin_frame(r);
+    renderer_render_world(r, engine()->world, &engine()->predict);
+
+    renderer_render_gui(r);
+    renderer_end_frame(r);
 }
 
 void app_shutdown()
@@ -158,6 +161,7 @@ void app_shutdown()
     Engine* e = engine();
     LOG_INFO("Shutting down application...");
 
+    celestial_render_shutdown(e->world);
     predict_state_shutdown(&e->predict);
     scheduler_destroy(e->scheduler);
     world_destroy(e->world);

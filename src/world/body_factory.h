@@ -10,7 +10,7 @@
 #define DENSITY_ROCK   3.0f
 #define DENSITY_GAS    0.5f
 
-#define VISUAL_RADIUS_SCALE 1
+#define VISUAL_RADIUS_SCALE 2
 
 typedef struct {
     const char* name;
@@ -60,7 +60,7 @@ static inline Body create_physical_body(const BodyParam* param)
     b.render.emits_light     = false;
     b.render.light_intensity = 0.0f;
     b.render.temperature     = 0;
-    b.render.emissive_strength = 0.0f;
+    b.render.emissive_strength = 0.3f;
 
     return b;
 }
@@ -84,7 +84,7 @@ static inline WorldID spawn_body_with_shader(World* world, const BodyParam* desc
 {
     LOG_TODO("Each body shader.");
     Body body = create_physical_body(desc);
-    body.render.shader = LoadShader(shader->vertex, shader->fragment);
+    // body.render.shader = LoadShader(shader->vertex, shader->fragment);
     return world_add_body(world, &body);
 }
 

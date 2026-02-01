@@ -1,7 +1,7 @@
 #pragma once
 #include <stddef.h>
 #include <raylib.h>
-#include "octree.h"
+#include "octree/octree.h"
 #include "world/body.h"
 
 void physics_integrate( PhysicsBodyView* bodies, int count, float dt);

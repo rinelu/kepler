@@ -39,6 +39,26 @@ static Vector3 blackbody_to_rgb(float kelvin)
     };
 }
 
+static Vector3 normalize_rgb(Vector3 c)
+{
+    float maxc = fmaxf(c.x, fmaxf(c.y, c.z));
+    if (maxc > 0.0f) {
+        c.x /= maxc;
+        c.y /= maxc;
+        c.z /= maxc;
+    }
+    return c;
+}
+
+static Vector3 srgb_to_linear(Vector3 c)
+{
+    return (Vector3){
+        powf(c.x, 2.2f),
+        powf(c.y, 2.2f),
+        powf(c.z, 2.2f)
+    };
+}
+
 void build_lights(const World* world, RenderContext* ctx)
 {
     ctx->light_count = 0;
@@ -52,7 +72,9 @@ void build_lights(const World* world, RenderContext* ctx)
         RenderLight* l = &ctx->lights[ctx->light_count++];
 
         l->position  = b->position;
-        l->color     = blackbody_to_rgb(b->render.temperature),
+        Vector3 srgb = blackbody_to_rgb(b->render.temperature);
+        srgb = normalize_rgb(srgb);
+        l->color = srgb_to_linear(srgb);
         l->intensity = b->render.light_intensity;
     }
 }

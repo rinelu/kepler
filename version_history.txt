@@ -3,6 +3,30 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 ------------------------------------------------
+v0.8.0 – Rendering, Camera, and Physics Enhancements
+------------------------------------------------
+
+Changes
+- Full rewrite of celestial rendering using BodyRender abstraction
+- Added bloom post-processing with HDR extraction, blur, and combine passes
+- Added glow/rim shaders for emissive stars
+- Multi-LOD sphere meshes for planets (near, mid, far)
+- Unified camera system:
+    - Free, orbit, and follow modes fully integrated
+    - Smooth interpolation for position, yaw, pitch, and distance
+    - Mouse axis inversion configurable via GUI
+- Barnes–Hut gravity improvements and bug fixes (`bh_compute_gravity`)
+- Adaptive physics timestep scaling with sub-stepping for high-acceleration bodies
+- Fixed planet shader normals
+- Optimized render data and body creation pipeline
+
+Known Limitations
+- Barnes–Hut still violates Newton’s 3rd law
+- No collision or body merging support
+- Floating-origin support not yet implemented
+- Some visual effects (atmospheres) are incomplete
+
+------------------------------------------------
 v0.7.0 – Lighting, Orbits, and Physics Stability
 ------------------------------------------------
 

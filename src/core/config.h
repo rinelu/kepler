@@ -2,8 +2,15 @@
 #include <assert.h>
 #include <stdbool.h>
 
+// max physics steps per frame
+#define TIME_MAX_FRAME_STEPS 32
+// seconds of sim time
+#define TIME_MAX_ACCUMULATED 1.0f
 #define PREDICT_MAX_STEPS 100000
+
 // OCTREE
+#define MAX_SUBSTEPS 32
+#define ACC_LIMIT    5.0f   // lower = safer, higher = faster
 #define NEAR_FIELD_FACTOR 2.5f
 
 typedef struct {
@@ -23,8 +30,14 @@ typedef struct {
 } SimConfig;
 
 typedef struct {
+    bool invert_mouse_y;
+    bool invert_mouse_x;
+} CameraConfig;
+
+typedef struct {
     WorldConfig   world;
     SimConfig     sim;
+    CameraConfig  camera;
 } EngineConfig;
 
 extern EngineConfig g_config;

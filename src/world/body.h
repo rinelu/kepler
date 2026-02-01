@@ -3,7 +3,27 @@
 #include <raylib.h>
 
 typedef struct {
+    Mesh  sphere_mesh[3];
+    Model sphere_model[3];
+} BodyMesh;
+
+typedef struct {
     Shader shader;
+
+    int loc_mvp;
+    int loc_model;
+    int loc_color;
+    int loc_light;
+    int loc_emissive;
+    int loc_light_count;
+    int loc_light_pos;
+    int loc_light_color;
+    int loc_light_intensity;
+} BodyShader;
+
+typedef struct {
+    BodyShader* shader;
+    BodyMesh* mesh;
 
     float radius;
 
@@ -22,11 +42,6 @@ typedef struct {
 
     Texture2D surface_texture;
     Texture2D normal_map;
-
-    int loc_mvp;
-    int loc_time;
-    int loc_radius;
-    int loc_color;
 } BodyRender;
 
 typedef struct {

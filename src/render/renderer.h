@@ -5,8 +5,9 @@
 #include "../world/world.h"
 #include "../camera/camera.h"
 #include "predict/predict_state.h"
+#include "render/bloom.h"
 
-#define MAX_LIGHTS 4
+#define MAX_LIGHTS 256
 
 typedef struct {
     Vector3 position;
@@ -32,6 +33,7 @@ typedef struct {
     Color clear_color;
 
     RenderContext ctx;
+    Bloom bloom;
 } Renderer;
 
 Renderer* renderer_create(int width, int height, const char* title, bool vsync);

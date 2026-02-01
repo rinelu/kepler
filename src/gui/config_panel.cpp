@@ -17,6 +17,7 @@ void draw_config_panel()
 
     auto& world    = g_config.world;
     auto& sim      = g_config.sim;
+    auto& camera   = g_config.camera;
     auto& renderer = *g_engine.renderer;
     auto& time     = g_engine.time;
     auto& predict  = g_engine.predict;
@@ -33,10 +34,16 @@ void draw_config_panel()
     // ---------------- Simulation ----------------
     if (ImGui::CollapsingHeader("Simulation", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::DragFloat("Time Scale", &time.time_scale, 0.01f, 0.0f, 100.0f);
+        time.time_scale = Clamp(time.time_scale, 1.0f, TIME_MAX_FRAME_STEPS);
         ImGui::Checkbox("Paused", &time.paused);
         ImGui::Checkbox("VSync", &renderer.vsync);
 
         ImGui::Text("Resolution: %dx%d", sim.screen_width, sim.screen_height);
+    }
+
+    if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::Checkbox("Invert X axis", &camera.invert_mouse_x);
+        ImGui::Checkbox("Invert Y axis", &camera.invert_mouse_y);
     }
 
     if (ImGui::CollapsingHeader("Prediction", ImGuiTreeNodeFlags_DefaultOpen)) {

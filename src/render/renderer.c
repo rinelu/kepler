@@ -1,10 +1,9 @@
 #include "renderer.h"
-
 #include <raylib.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "gui/imgui_layer.h"
-#include "render/celestial_render.h"
+#include "render/bloom.h"
 #include "render/predict_render.h"
 #include "rlgl.h"
 
@@ -22,7 +21,7 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     if (vsync) SetConfigFlags(FLAG_VSYNC_HINT);
-    // SetConfigFlags(FLAG_MSAA_4X_HINT);
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
 
     InitWindow(width, height, title);
     assert(IsWindowReady());
@@ -30,7 +29,7 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
     SetTargetFPS(0);
 
     ImGuiLayer_Init();
-    celestial_render_init();
+    bloom_init(&renderer->bloom, width, height);
 
     return renderer;
 }
@@ -58,8 +57,8 @@ void renderer_destroy(Renderer* renderer)
 {
     if (!renderer) return;
 
+    bloom_shutdown(&renderer->bloom);
     ImGuiLayer_Shutdown();
-    celestial_render_shutdown();
     CloseWindow();
     free(renderer);
 }
@@ -74,20 +73,24 @@ void renderer_begin_frame(Renderer* renderer)
 
 void renderer_render_world(Renderer* renderer, const World* world, PredictState* predict)
 {
+    bloom_begin_scene(&renderer->bloom);
     BeginMode3D(renderer->ctx.camera);
     rlEnableDepthTest();
-    rlClearScreenBuffers();
     rlEnableBackfaceCulling();
 
     render_world(world, &renderer->ctx);
 
-    if (predict->enabled) {
-        predict_render_draw(predict);
-    }
-
     rlDisableBackfaceCulling();
     rlDisableDepthTest();
     EndMode3D();
+    bloom_end_scene(&renderer->bloom);
+    bloom_draw(&renderer->bloom);
+
+    if (predict && predict->enabled) {
+        BeginMode3D(renderer->ctx.camera);
+        predict_render_draw(predict);
+        EndMode3D();
+    }
 }
 
 void renderer_render_gui(Renderer* renderer)
@@ -98,10 +101,14 @@ void renderer_render_gui(Renderer* renderer)
     rlDisableDepthTest();
     rlDisableBackfaceCulling();
     rlSetTexture(0);
+    rlEnableColorBlend();
+    rlSetBlendMode(RL_BLEND_ALPHA);
 
     ImGuiLayer_Begin();
     ImGuiLayer_Draw();
     ImGuiLayer_End();
+
+    rlDisableColorBlend();
 }
 
 void renderer_end_frame(Renderer* renderer)

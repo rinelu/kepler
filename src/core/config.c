@@ -24,6 +24,10 @@ bool config_load(const char* path)
     g_config.sim.vsync         = true;
     g_config.sim.paused        = false;
 
+    /* -------- CAMERA -------- */
+    g_config.camera.invert_mouse_x = false;
+    g_config.camera.invert_mouse_y = true;
+
     parse_config_file(path, &g_config);
 
     // Sanity check

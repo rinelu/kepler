@@ -2,8 +2,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define TIME_MAX_ACCUMULATED 0.25f
-
 typedef struct Time {
     float real_dt;
     float accumulator;
