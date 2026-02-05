@@ -1,6 +1,6 @@
 #include "camera.h"
 #include "core/config.h"
-#include "gui/imgui_layer.h"
+#include "gui/gui_layer.h"
 #include <string.h>
 #include <math.h>
 

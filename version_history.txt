@@ -3,6 +3,38 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 ------------------------------------------------
+v0.10.0 – Dual GUI Backends, CI, and Platform Unification
+------------------------------------------------
+
+Changes
+- Added Nuklear GUI backend alongside existing ImGui integration:
+    - New C-based Nuklear layer via raylib-nuklear
+    - Shared GUI entry point renamed (imgui_layer -> gui_layer)
+- GUI and interaction refactors:
+    - Centralized GUI input capture handling across backends
+    - Improved selection overlay rendering consistency
+    - Cleaner separation between world rendering and UI overlays
+- Introduced GitHub Actions CI pipeline:
+    - macOS, Linux (gcc & clang), and Windows (MSYS2)
+    - Ensures cross-platform build stability
+- Reworked third-party raylib layout:
+    - Consolidated headers under thirdparty/raylib/include
+    - Platform-specific binaries organized by target (linux / macos / win64 / wasm)
+    - Removed redundant upstream documentation files
+- Engine, camera, and input improvements:
+    - Cleaner GUI-aware input routing
+    - Minor camera handling fixes
+    - Renderer stability improvements
+- General cleanup:
+    - Utility and renderer header refactors
+    - Selection overlay fixes
+
+Known Limitations
+- Nuklear UI does not yet reach feature parity with ImGui panels
+- No runtime GUI backend switching (compile-time / manual selection)
+- Inspector edits remain non-persistent and lack undo/redo
+
+------------------------------------------------
 v0.9.0 – Interaction, Selection, and Editor Tooling
 ------------------------------------------------
 

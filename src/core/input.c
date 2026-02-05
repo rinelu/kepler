@@ -3,7 +3,7 @@
 #include "core/engine.h"
 #include "core/time.h"
 #include "editor/pick_body.h"
-#include "gui/imgui_layer.h"
+#include "gui/gui_layer.h"
 #include "world/world_ids.h"
 
 void handle_body_picking(WorldID picked)

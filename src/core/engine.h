@@ -1,6 +1,7 @@
 #pragma once
 #include <assert.h>
 
+#include "raylib-nuklear.h"
 #include "world/world.h"
 #include "render/renderer.h"
 #include "core/scheduler.h"
@@ -9,6 +10,7 @@
 
 typedef struct Engine {
     Time time;
+    struct nk_context* nuklear;
     Scheduler* scheduler;
 
     World*     world;

@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "gui/imgui_layer.h"
+#include "gui/gui_layer.h"
 #include "render/bloom.h"
 #include "render/celestial_render.h"
 #include "render/glow.h"
@@ -31,6 +31,8 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
     SetTargetFPS(0);
 
     ImGuiLayer_Init();
+    NuklearLayer_Init();
+
     bloom_init(&renderer->bloom, width, height);
     glow_init(&renderer->glow);
     selection_init(&renderer->selection);
@@ -64,6 +66,7 @@ void renderer_destroy(Renderer* renderer)
     selection_shutdown(&renderer->selection);
     glow_shutdown(&renderer->glow);
     bloom_shutdown(&renderer->bloom);
+    NuklearLayer_Shutdown();
     ImGuiLayer_Shutdown();
     CloseWindow();
     free(renderer);
@@ -115,6 +118,10 @@ void renderer_render_gui(Renderer* renderer)
     ImGuiLayer_Begin();
     ImGuiLayer_Draw();
     ImGuiLayer_End();
+
+    NuklearLayer_Begin();
+    NuklearLayer_Draw();
+    NuklearLayer_End();
 
     rlDisableColorBlend();
 }
