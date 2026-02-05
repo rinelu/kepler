@@ -13,6 +13,12 @@
 #define ACC_LIMIT    5.0f   // lower = safer, higher = faster
 #define NEAR_FIELD_FACTOR 2.5f
 
+#define DENSITY_STAR   1.0f
+#define DENSITY_ROCK   3.0f
+#define DENSITY_GAS    0.5f
+
+#define VISUAL_RADIUS_SCALE 2
+
 typedef struct {
     float gravity_constant;
     float bh_theta;
@@ -32,6 +38,8 @@ typedef struct {
 typedef struct {
     bool invert_mouse_y;
     bool invert_mouse_x;
+    int follow_id;
+    int mode;
 } CameraConfig;
 
 typedef struct {

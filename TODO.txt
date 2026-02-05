@@ -1,67 +1,122 @@
-Kepler – TODO
-====================
+Kepler – TODO Status Diff (as of v0.9.0)
+=======================================
 
-Next (High Priority)
--------------------
+DONE
+----
 
 Physics
-- Fix Barnes–Hut Newton’s 3rd law violation
-- Improve energy behavior at high time scales
-- Finalize adaptive sub-stepping heuristics
-- Remove remaining integrator edge cases
-
-World Scale
-- Add floating-origin support
-- Stabilize precision at large distances
-
-Interaction
-- Mouse picking for body selection
-- Stable camera follow at high velocities
-- Smooth camera mode transitions
+- Adaptive physics sub-stepping
+- Automatic switch between N**2 gravity and Barnes–Hut
+- Deterministic fixed-timestep physics
+- Symplectic (Velocity Verlet) integration
+- Barnes–Hut traversal bugs fixed
+- Improved gravitational softening
+- Energy / momentum diagnostics and tracking
 
 Rendering
-- Orbit path visualization (toggleable)
-- Starfield / sky background
-- Debug vectors (velocity, acceleration)
+- Emissive stars
+- Atmospheric rim lighting (basic)
+- Multi-LOD planet meshes
+- Bloom / HDR post-processing
+- Blackbody temperature → RGB star coloring
+- Selection ring rendering (billboarded, animated)
+- Improved visual radius scaling for massive bodies
 
-Known Gaps
-- No collisions or merging
-- No save/load
-- No deterministic replay
+Camera
+- Unified camera system (free / orbit / follow)
+- Smooth camera interpolation
+- GUI-aware camera input handling
+- Mouse axis inversion via GUI
+- Runtime camera mode switching
+- Follow target selection via editor
+- Camera parameter tuning via GUI:
+  - Sensitivity
+  - Move speed
+  - Zoom speed
+  - Distance / yaw / pitch (orbit & follow)
 
-Mid-Term
---------
-
-Simulation
-- Stable orbits without manual tuning
-- Robust behavior at extreme mass ratios
-
-Collisions (Optional)
-- Sphere–sphere collision detection
-- Momentum-preserving merges
-
-Performance
-- Pool octree nodes
-- Reduce per-step allocations
-- Stress-test with 1k+ bodies
+Interaction
+- Mouse picking / body selection
+- Persistent body selection state
 
 Tooling
-- Minimal on-screen debug overlay
-- Pause + inspect mode
+- ImGui integration
+- Live runtime tuning of physics parameters
+- Engine / physics inspection panels
+- Per-body Inspector panel:
+  - Transform (position, velocity, acceleration)
+  - Physics parameters (mass, radius, damping)
+  - Rendering and emissive/light properties
+- Camera inspection and debugging panel
 
-Long-Term
----------
+
+PARTIALLY DONE
+--------------
 
 Physics
-- Tidal forces
-- Relativistic correction toggle (visual)
+- Barnes–Hut gravity
+  (works, but violates Newton’s 3rd law)
+- Energy stability at high time scales
+  (improved, not guaranteed)
+- Adaptive sub-stepping heuristics
+  (still edge cases at extreme acceleration)
 
-Data
-- Save/load world state
+World Scale
+- Precision handling at large distances
+  (improved indirectly, no floating origin)
+
+Rendering
+- Atmospheres
+  (rim lighting exists, full atmospheres incomplete)
+- Orbit path visualization
+  (experimentation started, not integrated)
+
+Camera
+- Camera follow at high velocities
+  (exists, damping and prediction incomplete)
+- FREE camera inertia / velocity model
+  (basic movement, no smoothing or acceleration model)
+
+Interaction
+- Selection visualization polish
+  (occlusion, scaling, depth interaction)
+
+Tooling
+- Inspector edit persistence
+  (live edits not saved or undoable)
+- Input system refactor
+  (centralized, capture rules still evolving)
+
+Performance
+- Octree diagnostics and experimentation
+  (pooling/caching not finalized)
+
+
+NOT STARTED
+-----------
+
+World Scale
+- Floating-origin support
+
+Rendering & Visualization
+- Starfield / sky background
+- Debug vectors (velocity, acceleration, force)
+
+Simulation Features
+- Collisions
+- Body merging
+- Deterministic replay
+- Save / load world state
+
+Physics Extensions
+- Tidal forces
+- Relativistic corrections
+
+Tooling
+- Pause + inspect mode
+- Undo / redo system
+- Minimal always-on debug overlay
+
+Data / Workflow
 - Snapshot export
 - Scriptable system generation
-
-Non-Goals
----------
-- Full astrophysics accuracy
-- Gas or fluid simulation

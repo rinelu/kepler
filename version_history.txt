@@ -3,6 +3,46 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 ------------------------------------------------
+v0.9.0 – Interaction, Selection, and Editor Tooling
+------------------------------------------------
+
+Changes
+- Added mouse-based body picking using camera ray casting
+- Introduced persistent body selection state in Engine
+- Visual selection indicator rendered in-world (billboarded animated ring)
+- On-screen selection label overlay for selected bodies
+- Added Inspector panel for live per-body editing:
+    - Transform (position, velocity, acceleration)
+    - Physics parameters (mass, radius, damping)
+    - Rendering flags and material properties
+    - Light / emissive tuning with blackbody temperature control
+- Centralized input handling system:
+    - Unified keyboard and mouse input processing
+    - Proper GUI input capture handling (ImGui-safe)
+- Camera system improvements:
+    - GUI-aware mouse and keyboard handling
+    - Runtime camera mode switching (free / orbit / follow)
+    - Follow target selection via GUI
+    - Orbit camera panning with middle mouse
+    - Smooth interpolation of orbit/follow parameters
+    - Exposed camera parameters in editor: Sensitivity, Move speed, Zoom speed, Distance / yaw / pitch
+    - Improved FREE camera interaction reliability
+- Refactored shared math and color utilities into utils module
+- Moved global render resources (default meshes/shaders) into core globals
+- Improved star rendering:
+    - Temperature-driven base color assignment
+    - Revised emissive contribution scaling
+- Tuned bloom extraction threshold for better HDR response
+- Improved visual radius scaling for large-mass bodies
+
+Known Limitations
+- Barnes–Hut gravity still violates Newton’s 3rd law
+- No collision detection or body merging
+- No floating-origin or large-scale precision correction
+- Selection overlay does not account for occlusion by UI
+- Inspector edits are not persisted or undoable
+
+------------------------------------------------
 v0.8.0 – Rendering, Camera, and Physics Enhancements
 ------------------------------------------------
 

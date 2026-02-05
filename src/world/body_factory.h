@@ -1,16 +1,11 @@
 #pragma once
-
+#include "core/config.h"
 #include "core/log.h"
 #include "world.h"
 #include "world_ids.h"
+#include "utils/utils.h"
 #include <raymath.h>
 #include <math.h>
-
-#define DENSITY_STAR   1.0f
-#define DENSITY_ROCK   3.0f
-#define DENSITY_GAS    0.5f
-
-#define VISUAL_RADIUS_SCALE 2
 
 typedef struct {
     const char* name;
@@ -41,6 +36,7 @@ static inline Body create_physical_body(const BodyParam* param)
     Body b = {0};
 
     b.parent  = WORLD_ID_INVALID;
+    b.name    = param->name;
     b.visible = true;
 
     b.mass         = param->mass;
@@ -53,14 +49,15 @@ static inline Body create_physical_body(const BodyParam* param)
     float physical_radius = compute_radius_from_mass(param->mass, param->density);
     b.radius = physical_radius;
 
-    b.render.radius     = physical_radius * VISUAL_RADIUS_SCALE;
+    float visual_radius = physical_radius * VISUAL_RADIUS_SCALE * (1.0f + 0.25f * log10f(param->mass + 1.0f));
+    b.render.radius     = visual_radius;
     b.render.base_color = (param->base_color.a == 0) ? WHITE : param->base_color;
 
     b.render.use_atmosphere  = false;
     b.render.emits_light     = false;
     b.render.light_intensity = 0.0f;
     b.render.temperature     = 0;
-    b.render.emissive_strength = 0.3f;
+    b.render.emissive_strength = 0;
 
     return b;
 }
@@ -77,7 +74,7 @@ static inline void body_make_star(Body* b, float intensity, float emissive, floa
     b->render.light_intensity = intensity;
     b->render.emissive_strength = emissive;
     b->render.temperature = temperature;
-    LOG_TODO("Star temperature");
+    b->render.base_color = temperature_to_rgb(temperature);
 }
 
 static inline WorldID spawn_body_with_shader(World* world, const BodyParam* desc, const SpawnBodyShader* shader)
@@ -86,9 +83,4 @@ static inline WorldID spawn_body_with_shader(World* world, const BodyParam* desc
     Body body = create_physical_body(desc);
     // body.render.shader = LoadShader(shader->vertex, shader->fragment);
     return world_add_body(world, &body);
-}
-
-static inline void body_set_damping(Body* b, float damping)
-{
-    b->damping = Clamp(damping, 0.0f, 0.01f);
 }

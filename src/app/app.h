@@ -10,6 +10,5 @@ void app_create_planets(World* world);
 void app_init_systems(Scheduler* s);
 
 void app_update();
-void app_handle_input();
 void app_render();
 void app_shutdown();

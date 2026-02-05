@@ -4,49 +4,45 @@
 #include <raymath.h>
 #include <rlgl.h>
 #include <assert.h>
-
-// TODO: write shader manager.
-static BodyShader default_shader;
-static BodyMesh   default_mesh;
-static bool ba_loaded;
+#include "core/global.h"
 
 void body_render_init(BodyRender* render)
 {
-    if (!ba_loaded) {
-        default_mesh.sphere_mesh[LOD_NEAR] = GenMeshSphere(1.0f, 64, 64);
-        default_mesh.sphere_mesh[LOD_MID]  = GenMeshSphere(1.0f, 32, 32);
-        default_mesh.sphere_mesh[LOD_FAR]  = GenMeshSphere(1.0f, 12, 12);
+    if (!g_ba_loaded) {
+        g_default_mesh.sphere_mesh[LOD_NEAR] = GenMeshSphere(1.0f, 64, 64);
+        g_default_mesh.sphere_mesh[LOD_MID]  = GenMeshSphere(1.0f, 32, 32);
+        g_default_mesh.sphere_mesh[LOD_FAR]  = GenMeshSphere(1.0f, 12, 12);
 
         for (int i = 0; i < 3; i++)
-            default_mesh.sphere_model[i] = LoadModelFromMesh(default_mesh.sphere_mesh[i]);
+            g_default_mesh.sphere_model[i] = LoadModelFromMesh(g_default_mesh.sphere_mesh[i]);
 
-        default_shader.shader = LoadShader("assets/shaders/planet.vert", "assets/shaders/planet.frag");
+        g_default_shader.shader = LoadShader("assets/shaders/planet.vert", "assets/shaders/planet.frag");
 
-        default_shader.loc_mvp      = GetShaderLocation(default_shader.shader, "mvp");
-        default_shader.loc_model    = GetShaderLocation(default_shader.shader, "model");
-        default_shader.loc_color    = GetShaderLocation(default_shader.shader, "baseColor");
-        default_shader.loc_light    = GetShaderLocation(default_shader.shader, "lightDir");
-        default_shader.loc_emissive = GetShaderLocation(default_shader.shader, "emissiveIntensity");
-        default_shader.loc_light_count     = GetShaderLocation(default_shader.shader, "lightCount");
-        default_shader.loc_light_pos       = GetShaderLocation(default_shader.shader, "lightPos");
-        default_shader.loc_light_color     = GetShaderLocation(default_shader.shader, "lightColor");
-        default_shader.loc_light_intensity = GetShaderLocation(default_shader.shader, "lightIntensity");
-        ba_loaded = true;
+        g_default_shader.loc_mvp      = GetShaderLocation(g_default_shader.shader, "mvp");
+        g_default_shader.loc_model    = GetShaderLocation(g_default_shader.shader, "model");
+        g_default_shader.loc_color    = GetShaderLocation(g_default_shader.shader, "baseColor");
+        g_default_shader.loc_light    = GetShaderLocation(g_default_shader.shader, "lightDir");
+        g_default_shader.loc_emissive = GetShaderLocation(g_default_shader.shader, "emissiveIntensity");
+        g_default_shader.loc_light_count     = GetShaderLocation(g_default_shader.shader, "lightCount");
+        g_default_shader.loc_light_pos       = GetShaderLocation(g_default_shader.shader, "lightPos");
+        g_default_shader.loc_light_color     = GetShaderLocation(g_default_shader.shader, "lightColor");
+        g_default_shader.loc_light_intensity = GetShaderLocation(g_default_shader.shader, "lightIntensity");
+        g_ba_loaded = true;
     }
 
-    render->shader = &default_shader;
-    render->mesh   = &default_mesh;
+    render->shader = &g_default_shader;
+    render->mesh   = &g_default_mesh;
 }
 
 void body_render_shutdown(BodyRender* render)
 {
-    if (render->shader != &default_shader) {
-        UnloadShader(default_shader.shader);
+    if (render->shader != &g_default_shader) {
+        UnloadShader(g_default_shader.shader);
     }
 
-    if (render->mesh != &default_mesh) {
+    if (render->mesh != &g_default_mesh) {
         for (int i = 0; i < 3; i++)
-            UnloadModel(default_mesh.sphere_model[i]);
+            UnloadModel(g_default_mesh.sphere_model[i]);
     }
 }
 

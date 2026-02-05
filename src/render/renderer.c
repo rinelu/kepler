@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "gui/imgui_layer.h"
 #include "render/bloom.h"
+#include "render/celestial_render.h"
+#include "render/glow.h"
 #include "render/predict_render.h"
 #include "rlgl.h"
 
@@ -30,6 +32,8 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
 
     ImGuiLayer_Init();
     bloom_init(&renderer->bloom, width, height);
+    glow_init(&renderer->glow);
+    selection_init(&renderer->selection);
 
     return renderer;
 }
@@ -57,6 +61,8 @@ void renderer_destroy(Renderer* renderer)
 {
     if (!renderer) return;
 
+    selection_shutdown(&renderer->selection);
+    glow_shutdown(&renderer->glow);
     bloom_shutdown(&renderer->bloom);
     ImGuiLayer_Shutdown();
     CloseWindow();
@@ -86,11 +92,13 @@ void renderer_render_world(Renderer* renderer, const World* world, PredictState*
     bloom_end_scene(&renderer->bloom);
     bloom_draw(&renderer->bloom);
 
+    // NO BLOOM
+    BeginMode3D(renderer->ctx.camera);
+    celestial_render_selection(world);
     if (predict && predict->enabled) {
-        BeginMode3D(renderer->ctx.camera);
         predict_render_draw(predict);
-        EndMode3D();
     }
+    EndMode3D();
 }
 
 void renderer_render_gui(Renderer* renderer)

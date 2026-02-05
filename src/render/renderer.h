@@ -6,6 +6,8 @@
 #include "../camera/camera.h"
 #include "predict/predict_state.h"
 #include "render/bloom.h"
+#include "render/glow.h"
+#include "render/selection.h"
 
 #define MAX_LIGHTS 256
 
@@ -34,6 +36,8 @@ typedef struct {
 
     RenderContext ctx;
     Bloom bloom;
+    Glow glow;
+    Selection selection;
 } Renderer;
 
 Renderer* renderer_create(int width, int height, const char* title, bool vsync);

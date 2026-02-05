@@ -32,7 +32,7 @@ void bloom_init(Bloom* b, int w, int h)
     b->loc_direction      = GetShaderLocation(b->blur, "direction");
     b->loc_bloomIntensity = GetShaderLocation(b->combine, "bloomIntensity");
 
-    float threshold = 0.6f;
+    float threshold = 0.25f;
     SetShaderValue(b->extract, b->loc_threshold, &threshold, SHADER_UNIFORM_FLOAT);
 
     float intensity = 1.2f;

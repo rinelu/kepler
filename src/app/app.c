@@ -5,6 +5,7 @@
 #include "camera/camera.h"
 #include "core/config.h"
 #include "core/engine.h"
+#include "core/input.h"
 #include "core/log.h"
 // #include "systems/relax_system.h"
 #include "render/celestial_render.h"
@@ -61,9 +62,9 @@ bool app_init()
     app_create_planets(e->world);
     app_init_systems(e->scheduler);
 
-    orbit_plummer(e->world, 50);
+    orbit_plummer(e->world, 30);
     // orbit_virial_rotating(e->world);
-    // orbit_keplerian(e->world);
+    orbit_keplerian(e->world);
     // relaxation_init();
     //
     celestial_render_init(e->world);
@@ -114,26 +115,11 @@ void app_init_systems(Scheduler* s)
     scheduler_add_system(s, "physics", physics_system_update, 100);
 }
 
-void app_handle_input()
-{
-    Engine* e = engine();
-    if (IsKeyPressed(KEY_SPACE)) {
-        time_set_paused(&e->time, !e->time.paused);
-    }
-
-    if (IsKeyPressed(KEY_N)) {
-        time_step_once(&e->time);
-    }
- 
-    if (IsKeyPressed(KEY_F)) {
-        time_set_fixed(&e->time, !e->time.use_fixed_timestep);
-    }
-}
-
 void app_update()
 {
     Engine* e = engine();
     time_begin_frame(&e->time);
+    input_update();
     camera_update(&e->camera, e->time.dt);
     renderer_update_context(&e->renderer->ctx, &e->camera);
 

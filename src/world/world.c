@@ -74,6 +74,7 @@ void world_clear(World* world)
     for (uint32_t i = 0; i < world->capacity; ++i) {
         world->items[i].alive = false;
         world->items[i].generation++;
+        world->items[i].body.id = WORLD_ID_INVALID;
     }
 
     world->count = 0;
@@ -108,6 +109,7 @@ WorldID world_add_body(World* world, const void* body_data)
         slot->alive = true;
 
         WorldID id = world_id_make(i, slot->generation);
+        slot->body.id = id;
         world->count++;
 
         return id;
@@ -125,5 +127,6 @@ void world_remove_body(World* world, WorldID id)
 
     slot->alive = false;
     slot->generation++;
+    slot->body.id = WORLD_ID_INVALID;
     world->count--;
 }

@@ -3,6 +3,10 @@
 #include <raymath.h>
 #include "../world/world.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum {
     CAMERA_MODE_FREE,     // spectator / debug
     CAMERA_MODE_ORBIT,    // orbit around a target
@@ -37,6 +41,19 @@ typedef struct {
     World* world;
 } CameraState;
 
+static Vector3 camera_forward(const CameraState* cam)
+{
+    return (Vector3){
+        cosf(cam->yaw) * cosf(cam->pitch),
+        sinf(cam->pitch),
+        sinf(cam->yaw) * cosf(cam->pitch)
+    };
+}
+
 void camera_init(CameraState* cam, World* world);
 void camera_set_follow(CameraState* cam, WorldID id);
 void camera_update(CameraState* cam, float dt);
+
+#ifdef __cplusplus
+}
+#endif

@@ -14,8 +14,24 @@ uniform float lightIntensity[MAX_LIGHTS];
 
 out vec4 finalColor;
 
+float totalLightPower = 0.0;
+vec3 emittedColor = vec3(0.0);
+
+vec3 tonemap(vec3 c)
+{
+    return c / (c + vec3(1.0));
+}
+
 void main()
 {
+    vec3 linearBase = pow(baseColor.rgb, vec3(2.2));
+
+    if (emissiveIntensity > 0.0) {
+        vec3 emitted = linearBase * emissiveIntensity;
+        finalColor = vec4(emitted, 1.0);
+        return;
+    }
+
     vec3 n = normalize(fragNormal);
     vec3 color = vec3(0.0);
     color += baseColor.rgb * 0.06;
@@ -44,8 +60,12 @@ void main()
         lit *= mix(vec3(1.0), tint, 0.35);
 
         color += lit;
+        totalLightPower += lightIntensity[i];
+        emittedColor += lightColor[i] + lightIntensity[i];
     }
 
-    color += baseColor.rgb * emissiveIntensity * 0.5;
+    vec3 starTint = normalize(emittedColor + 1e-5);
+    float emissive = emissiveIntensity * log2(1.0 + totalLightPower);
+    color += baseColor.rgb * starTint * emissive;
     finalColor = vec4(color, baseColor.a);
 }

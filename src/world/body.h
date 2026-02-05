@@ -49,7 +49,9 @@ typedef struct {
 } BodyRotation;
 
 typedef struct Body {
+    const char* name;
     WorldID parent;
+    WorldID id;
     bool visible;
 
     Vector3 position;

@@ -15,6 +15,7 @@ typedef struct Engine {
     Renderer*  renderer;
     PredictState predict;
     CameraState camera;
+    WorldID selected_body;
 } Engine;
 
 extern Engine g_engine;

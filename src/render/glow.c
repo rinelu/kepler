@@ -34,16 +34,12 @@ void glow_draw_mesh(Glow* g, Mesh mesh, Material* material, Matrix model, Matrix
     rlEnableColorBlend();
     rlSetBlendMode(RL_BLEND_ADDITIVE);
 
-    float glowColor[3] = {
-        powf(color.r / 255.0f, 2.2f),
-        powf(color.g / 255.0f, 2.2f),
-        powf(color.b / 255.0f, 2.2f)
-    };
+    float glow_color[3] = { color.r, color.g, color.b };
 
     SetShaderValueMatrix(g->shader, g->loc_mvp, mvp);
     SetShaderValueMatrix(g->shader, g->loc_model, model);
     SetShaderValue(g->shader, g->loc_viewPos, &camera_pos, SHADER_UNIFORM_VEC3);
-    SetShaderValue(g->shader, g->loc_color, glowColor, SHADER_UNIFORM_VEC3);
+    SetShaderValue(g->shader, g->loc_color, &glow_color, SHADER_UNIFORM_VEC3);
     SetShaderValue(g->shader, g->loc_intensity, &intensity, SHADER_UNIFORM_FLOAT);
 
     BeginShaderMode(g->shader);
