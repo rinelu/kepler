@@ -14,11 +14,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 file(GLOB_RECURSE C_SOURCES CONFIGURE_DEPENDS src/*.c)
 file(GLOB_RECURSE CPP_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
-add_executable(kepler
-    ${C_SOURCES}
-    ${CPP_SOURCES}
-)
-
+# Raylib
 add_library(raylib STATIC IMPORTED)
 
 set_target_properties(raylib PROPERTIES
@@ -56,17 +52,53 @@ set_target_properties(raylib PROPERTIES
     IMPORTED_LOCATION ${RAYLIB_LIB}
 )
 
+# ImGui
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/thirdparty/imgui)
+
+add_library(imgui STATIC
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+)
+
+target_include_directories(imgui PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/include
+)
+
+# rlImGui
+set(RLIMGUI_DIR ${CMAKE_SOURCE_DIR}/thirdparty/rlImGui)
+
+add_library(rlImGui STATIC
+    ${RLIMGUI_DIR}/rlImGui.cpp
+)
+
+target_include_directories(rlImGui PUBLIC
+    ${RLIMGUI_DIR}
+    ${RLIMGUI_DIR}/include
+)
+
+target_link_libraries(rlImGui PUBLIC
+    imgui
+    raylib
+)
+
+# Main executable
+add_executable(kepler
+    ${C_SOURCES}
+    ${CPP_SOURCES}
+)
+
 target_include_directories(kepler PRIVATE
     src
-    thirdparty/imgui/include
     thirdparty/raylib-nuklear/include
-    thirdparty/rlImGui/include
 )
 
 target_link_libraries(kepler PRIVATE
     raylib
-    ${CMAKE_SOURCE_DIR}/thirdparty/imgui/lib/libimgui.a
-    ${CMAKE_SOURCE_DIR}/thirdparty/rlImGui/lib/librlImGui.a
+    imgui
+    rlImGui
 )
 
 if(UNIX AND NOT APPLE AND NOT ANDROID)
