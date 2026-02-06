@@ -1,7 +1,7 @@
 #pragma once
-#include "../world/world.h"
-#include "core/engine.h"
-#include "renderer.h"
+#include "world/world.h"
+#include "engine/engine.h"
+#include "render/renderer.h"
 
 void celestial_render_init(World* world);
 void celestial_render_shutdown(World* world);

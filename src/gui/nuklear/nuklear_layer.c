@@ -1,6 +1,7 @@
-#include "gui_layer.h"
+#include "gui/gui_layer.h"
 
-#include "core/engine.h"
+#include "engine/engine.h"
+
 #define RAYLIB_NUKLEAR_IMPLEMENTATION
 #include "raylib-nuklear.h"
 

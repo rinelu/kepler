@@ -2,12 +2,12 @@
 
 #include <stdbool.h>
 #include <raylib.h>
-#include "../world/world.h"
-#include "../camera/camera.h"
+#include "world/world.h"
+#include "camera/camera.h"
 #include "predict/predict_state.h"
-#include "render/bloom.h"
-#include "render/glow.h"
-#include "render/selection.h"
+#include "render/passes/bloom.h"
+#include "render/passes/glow.h"
+#include "editor/selection.h"
 
 #define MAX_LIGHTS 256
 

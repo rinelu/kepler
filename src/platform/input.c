@@ -1,7 +1,7 @@
 #include "input.h"
 #include <raylib.h>
-#include "core/engine.h"
-#include "core/time.h"
+#include "engine/engine.h"
+#include "platform/time.h"
 #include "editor/pick_body.h"
 #include "gui/gui_layer.h"
 #include "world/world_ids.h"

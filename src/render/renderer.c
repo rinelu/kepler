@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "gui/gui_layer.h"
-#include "render/bloom.h"
-#include "render/celestial_render.h"
-#include "render/glow.h"
-#include "render/predict_render.h"
+#include "render/passes/bloom.h"
+#include "render/passes/celestial_render.h"
+#include "render/passes/glow.h"
+#include "predict/predict_render.h"
 #include "rlgl.h"
 
 #include "render_world.h"

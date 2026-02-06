@@ -6,7 +6,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#include "core/engine.h"
+#include "engine/engine.h"
 #include "camera/camera.h"
 
 static void build_mouse_ray(const CameraState* cam, Vector3* out_origin, Vector3* out_dir)

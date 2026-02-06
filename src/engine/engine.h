@@ -4,9 +4,9 @@
 #include "raylib-nuklear.h"
 #include "world/world.h"
 #include "render/renderer.h"
-#include "core/scheduler.h"
+#include "scheduler.h"
 #include "predict/predict_state.h"
-#include "core/time.h"
+#include "platform/time.h"
 
 typedef struct Engine {
     Time time;

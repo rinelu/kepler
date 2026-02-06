@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "world/body.h"
 #include "imgui.h"
-#include "utils/utils.h"
+#include "math/utils/utils.h"
 
 void body_params_panel(Body* b)
 {

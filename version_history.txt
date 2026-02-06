@@ -3,6 +3,33 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 ------------------------------------------------
+v0.11.0 – Engine Restructure & Scheduler Refactor
+------------------------------------------------
+
+Changes
+- Migrated Dear ImGui to source-based build
+- Migrated rlImGui to source-based build
+- Major source tree reorganization for clearer module boundaries:
+    - Split former `core` into `engine`, `platform`, and `predict`
+    - Moved scheduler and engine code under `engine`
+    - Isolated platform-specific systems (input, time)
+    - Grouped render passes under `render/passes`
+    - Reorganized GUI layers by backend (`imgui`, `nuklear`)
+    - Relocated editor-related code under `editor`
+    - Introduced `kepler` module as primary application entry point
+- Scheduler refactor:
+    - Removed dependency on `dynamic_array`
+    - Replaced macro-based container logic with explicit dynamic storage
+    - Preserved deterministic system execution order
+- Engine and system cleanup:
+    - Updated include paths to reflect new module layout
+    - Improved internal consistency across engine, render, and system layers
+
+Removed
+- Legacy `dynamic_array` utility
+- Deprecated `app` interface and headers
+
+------------------------------------------------
 v0.10.0 – Dual GUI Backends, CI, and Platform Unification
 ------------------------------------------------
 

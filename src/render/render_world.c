@@ -1,7 +1,7 @@
 #include "render_world.h"
 #include "world/world.h"
-#include "render/celestial_render.h"
-#include "utils/utils.h"
+#include "render/passes/celestial_render.h"
+#include "math/utils/utils.h"
 
 void build_lights(const World* world, RenderContext* ctx)
 {

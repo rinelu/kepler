@@ -5,7 +5,6 @@
 #include <string.h>
 #include <assert.h>
 #include <sys/types.h>
-#include "../dynamic_array.h"
 
 static bool world_id_matches(const World* world, WorldID id)
 {

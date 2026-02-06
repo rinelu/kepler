@@ -3,8 +3,6 @@
 #include <string.h>
 #include <assert.h>
 
-#include "../dynamic_array.h"
-
 typedef struct {
     const char* name;
     UpdateFn    update;
@@ -27,14 +25,22 @@ static int system_compare(const void* a, const void* b)
     return sa->order - sb->order;
 }
 
-Scheduler* scheduler_create(void) {
+static void scheduler_grow_if_needed(Scheduler* scheduler)
+{
+    if (scheduler->count < scheduler->capacity) return;
+
+    size_t new_capacity = scheduler->capacity ? scheduler->capacity * 2 : 8;
+    ScheduledSystem* new_items = realloc(scheduler->items, new_capacity * sizeof(ScheduledSystem));
+    assert(new_items);
+
+    scheduler->items    = new_items;
+    scheduler->capacity = new_capacity;
+}
+
+Scheduler* scheduler_create(void)
+{
     Scheduler* scheduler = calloc(1, sizeof(Scheduler));
     assert(scheduler);
-
-    scheduler->items    = NULL;
-    scheduler->count    = 0;
-    scheduler->capacity = 0;
-
     return scheduler;
 }
 
@@ -52,27 +58,24 @@ void scheduler_add_system(Scheduler* scheduler, const char* name, UpdateFn updat
     assert(update_fn);
     assert(name);
 
-    ScheduledSystem sys = {
+    scheduler_grow_if_needed(scheduler);
+
+    scheduler->items[scheduler->count++] = (ScheduledSystem){
         .name    = name,
         .update  = update_fn,
         .order   = order,
         .enabled = 1,
     };
-    da_append(scheduler, sys);
 
-    // Keep execution deterministic
-    qsort(
-        scheduler->items,
-        scheduler->count,
-        sizeof(ScheduledSystem),
-        system_compare
-    );
+    qsort(scheduler->items, scheduler->count, sizeof(ScheduledSystem), system_compare);
 }
 
-void scheduler_update(Scheduler* scheduler, float dt) {
+void scheduler_update(Scheduler* scheduler, float dt)
+{
     assert(scheduler);
 
-    da_foreach(ScheduledSystem, sys, scheduler) {
+    for (size_t i = 0; i < scheduler->count; ++i) {
+        ScheduledSystem* sys = &scheduler->items[i];
         if (!sys->enabled) continue;
         sys->update(dt);
     }
@@ -83,7 +86,8 @@ void scheduler_set_enabled(Scheduler* scheduler, const char* name, int enabled)
     assert(scheduler);
     assert(name);
 
-    da_foreach(ScheduledSystem, sys, scheduler) {
+    for (size_t i = 0; i < scheduler->count; ++i) {
+        ScheduledSystem* sys = &scheduler->items[i];
         if (strcmp(sys->name, name) == 0) {
             sys->enabled = enabled ? 1 : 0;
             return;
