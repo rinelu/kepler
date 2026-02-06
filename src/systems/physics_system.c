@@ -1,6 +1,6 @@
 #include "physics_system.h"
 #include "core/config.h"
-#include "core/engine.h"
+#include "engine/engine.h"
 #include "octree/octree.h"
 #include "raymath.h"
 #include "world/body.h"

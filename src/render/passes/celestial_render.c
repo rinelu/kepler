@@ -1,7 +1,7 @@
 #include "celestial_render.h"
-#include "body_render.h"
-#include "core/engine.h"
-#include "render/selection.h"
+#include "render/body_render.h"
+#include "engine/engine.h"
+#include "editor/selection.h"
 #include <raymath.h>
 #include <rlgl.h>
 #include <assert.h>

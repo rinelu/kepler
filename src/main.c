@@ -1,14 +1,14 @@
-#include "app/app.h"
+#include "kepler/kepler.h"
 
 int main(void)
 {
-    if (!app_init()) return 1;
+    if (!kepler_init()) return 1;
 
-    while (!app_should_close()) {
-        app_update();
-        app_render();
+    while (!kepler_should_close()) {
+        kepler_update();
+        kepler_render();
     }
 
-    app_shutdown();
+    kepler_shutdown();
     return 0;
 }

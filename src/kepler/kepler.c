@@ -1,14 +1,14 @@
-#include "app.h"
+#include "kepler.h"
 #include <assert.h>
 #include <raylib.h>
 
 #include "camera/camera.h"
 #include "core/config.h"
-#include "core/engine.h"
-#include "core/input.h"
+#include "engine/engine.h"
+#include "platform/input.h"
 #include "core/log.h"
 // #include "systems/relax_system.h"
-#include "render/celestial_render.h"
+#include "render/passes/celestial_render.h"
 #include "world/body_factory.h"
 #include "render/renderer.h"
 #include "systems/hierarchy_system.h"
@@ -16,7 +16,7 @@
 #include "world/orbit/orbit.h"
 #include "world/world.h"
 
-bool app_init()
+bool kepler_init()
 {
     LOG_INFO("Initializing application...");
     Engine* e       = engine();
@@ -59,8 +59,8 @@ bool app_init()
 
     LOG_INFO("Application initialized successfully.");
 
-    app_create_planets(e->world);
-    app_init_systems(e->scheduler);
+    kepler_create_planets(e->world);
+    kepler_init_systems(e->scheduler);
 
     orbit_plummer(e->world, 30);
     // orbit_virial_rotating(e->world);
@@ -72,9 +72,9 @@ bool app_init()
     return true;
 }
 
-bool app_should_close() { return WindowShouldClose(); }
+bool kepler_should_close() { return WindowShouldClose(); }
 
-void app_create_planets(World* world)
+void kepler_create_planets(World* world)
 {
     WorldID sun = spawn_body(world, &(BodyParam){
         .name     = "Sun",
@@ -108,14 +108,14 @@ void app_create_planets(World* world)
     });
 }
 
-void app_init_systems(Scheduler* s)
+void kepler_init_systems(Scheduler* s)
 {
     // scheduler_add_system(s, "relax",   relaxation_update, 10);
     scheduler_add_system(s, "hierarchy", hierarchy_update, 50);
     scheduler_add_system(s, "physics", physics_system_update, 100);
 }
 
-void app_update()
+void kepler_update()
 {
     Engine* e = engine();
     time_begin_frame(&e->time);
@@ -132,7 +132,7 @@ void app_update()
     time_end_frame(&e->time);
 }
 
-void app_render()
+void kepler_render()
 {
     Renderer* r = engine()->renderer;
     renderer_begin_frame(r);
@@ -142,7 +142,7 @@ void app_render()
     renderer_end_frame(r);
 }
 
-void app_shutdown()
+void kepler_shutdown()
 {
     Engine* e = engine();
     LOG_INFO("Shutting down application...");
