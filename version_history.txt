@@ -3,6 +3,21 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 ------------------------------------------------
+v0.12.0 – Prediction & Editor Improvements
+------------------------------------------------
+
+Changes
+- Refactored prediction system to use contiguous buffers and stride-based sampling
+- Improved prediction rendering using rlgl line batching
+- Prediction will only rebuilds when bodies, world, or prediction settings change
+- Exposed prediction timestep (`dt`) and improved parameter clamping
+- Minor editor, camera, and GUI cleanup
+
+Removed
+- Legacy per-body prediction track allocations
+- Unused raylib-nuklear CMake include target
+
+------------------------------------------------
 v0.11.0 – Engine Restructure & Scheduler Refactor
 ------------------------------------------------
 

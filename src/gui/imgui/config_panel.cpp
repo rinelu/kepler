@@ -111,22 +111,28 @@ void draw_camera_header()
 
 void draw_prediction_header()
 {
-    auto& predict  = g_engine.predict;
-    if (!ImGui::CollapsingHeader("Prediction", ImGuiTreeNodeFlags_DefaultOpen)) return;
-    ImGui::Checkbox("Enable Prediction", &predict.enabled);
-    ImGui::Checkbox("Freeze Prediction", &g_engine.predict.frozen);
-    if (ImGui::Button("Rebuild Prediction")) predict_state_mark_dirty(&g_engine.predict);
+    auto& predict = g_engine.predict;
 
-    if (!predict.enabled) return;;
+    if (!ImGui::CollapsingHeader("Prediction", ImGuiTreeNodeFlags_DefaultOpen))
+        return;
+
+    ImGui::Checkbox("Enable Prediction", &predict.enabled);
+    ImGui::Checkbox("Freeze Prediction", &predict.frozen);
+
+    if (ImGui::Button("Rebuild Prediction")) predict_state_mark_dirty(&predict);
+
+    if (!predict.enabled) return;
+
     bool changed = false;
     changed |= ImGui::DragInt("Steps", &predict.steps, 10, 1, PREDICT_MAX_STEPS);
-    ImGui::DragInt("Stride", &predict.stride, 1, 1, 100);
+    changed |= ImGui::DragInt("Stride", &predict.stride, 1, 0, 100);
+    changed |= ImGui::DragFloat("dt", &predict.dt, 0.0005f, 0.0001f, 1.0f, "%.4f");
 
     predict.steps  = Clamp(predict.steps, 1, PREDICT_MAX_STEPS);
-    predict.stride = Clamp(predict.stride, 1, predict.steps);
+    predict.stride = Clamp(predict.stride, 0, predict.steps);
     predict.dt     = Clamp(predict.dt, 0.0001f, 1.0f);
 
-    if (changed) predict_state_mark_dirty(&g_engine.predict);
+    if (changed) predict_state_mark_dirty(&predict);
 }
 
 void draw_config_panel()
@@ -143,11 +149,14 @@ void draw_config_panel()
 
     // ---------------- World ----------------
     if (ImGui::CollapsingHeader("World", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::DragFloat("Gravity", &world.gravity_constant, 0.001f, 0.0f, 100.0f);
-        ImGui::DragFloat("BH Theta", &world.bh_theta, 0.01f, 0.1f, 2.0f);
-        ImGui::DragFloat("Softening", &world.softening, 0.0001f, 0.0f, 1.0f);
-        ImGui::DragFloat("Max Velocity", &world.max_velocity, 0.1f, 0.0f, 1e6f);
-        ImGui::DragInt("Max Bodies", &g_config.world.max_bodies, 1, 1, 10'000'000);
+        bool changed = false;
+        changed |= ImGui::DragFloat("Gravity", &world.gravity_constant, 0.001f, 0.0f, 100.0f);
+        changed |= ImGui::DragFloat("BH Theta", &world.bh_theta, 0.01f, 0.1f, 2.0f);
+        changed |= ImGui::DragFloat("Softening", &world.softening, 0.0001f, 0.0f, 1.0f);
+        changed |= ImGui::DragFloat("Max Velocity", &world.max_velocity, 0.1f, 0.0f, 1e6f);
+        changed |= ImGui::DragInt("Max Bodies", &g_config.world.max_bodies, 1, 1, 10'000'000);
+
+        if (changed) predict_state_mark_dirty(&g_engine.predict);
     }
 
     // ---------------- Simulation ----------------

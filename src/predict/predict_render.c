@@ -1,32 +1,33 @@
 #include "predict_render.h"
-#include "predict/predict_state.h"
-#include "raymath.h"
-
-static void draw_thick_line(Vector3 a, Vector3 b, Color c)
-{
-    DrawLine3D(a, b, c);
-    DrawLine3D(Vector3Add(a, (Vector3){0.01f, 0, 0}), Vector3Add(b, (Vector3){0.01f, 0, 0}), c);
-}
+#include "rlgl.h"
 
 void predict_render_draw(const PredictState* ps)
 {
-    if (!ps || !ps->enabled) return;
-    if (!ps->positions || ps->steps < 2) return;
+    if (!ps || !ps->enabled || !ps->positions) return;
+    if (ps->stored_steps < 2) return;
 
-    int stride = ps->stride > 0 ? ps->stride : 1;
     Color c = ps->frozen
         ? (Color){120, 120, 255, 120}
         : (Color){150, 150, 150, 120};
 
+    rlPushMatrix();
+    rlEnableDepthTest();
+    rlEnableColorBlend();
+    rlDisableTexture();
+    rlSetBlendMode(RL_BLEND_ALPHA);
+
+    rlBegin(RL_LINES);
+    rlColor4ub(c.r, c.g, c.b, c.a);
+
     for (int b = 0; b < ps->body_count; b++) {
-        Vector3* pts = ps->positions[b];
+        const Vector3* base = &ps->positions[b * ps->stored_steps];
 
-        for (int i = 0; i + stride < ps->steps; i += stride) {
-            if (((i / stride) & 1) == 0) {
-                draw_thick_line(pts[i], pts[i + stride], c); // optional
-            }
+        for (int i = 0; i < ps->stored_steps - 1; i++) {
+            rlVertex3f(base[i].x,     base[i].y,     base[i].z);
+            rlVertex3f(base[i + 1].x, base[i + 1].y, base[i + 1].z);
         }
-
-        DrawSphere(pts[ps->steps - 1], 0.05f, c);
     }
+
+    rlEnd();
+    rlPopMatrix();
 }

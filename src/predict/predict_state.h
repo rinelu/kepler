@@ -7,14 +7,22 @@ typedef struct {
     bool enabled;
     bool frozen;
     bool needs_rebuild;
+
     int steps;
     int stride;
-    int allocated_steps;
+    int effective_stride;
+
+    int stored_steps;
+    int capacity_steps;
+
     float dt;
     int body_count;
-    Vector3** positions;
-    Vector3** velocities;
+
+    Vector3* positions;
+    Vector3* velocities;
 } PredictState;
+
+#define PRED_POS(ps, b, s) ((ps)->positions[(b)*(ps)->stored_steps + (s)])
 
 #ifdef __cplusplus
 extern "C" {
