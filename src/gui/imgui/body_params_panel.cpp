@@ -1,3 +1,4 @@
+#include "engine/engine.h"
 #include "raylib.h"
 #include "world/body.h"
 #include "imgui.h"
@@ -18,17 +19,19 @@ void body_params_panel(Body* b)
 
     ImGui::Checkbox("Visible", &b->visible);
 
+    bool physics_changed = false;
     if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::DragFloat3("Position", (float*)&b->position, 0.01f);
-        ImGui::DragFloat3("Velocity", (float*)&b->velocity, 0.01f);
-        ImGui::DragFloat3("Acceleration", (float*)&b->acceleration, 0.01f);
+        physics_changed |= ImGui::DragFloat3("Position", (float*)&b->position, 0.01f);
+        physics_changed |= ImGui::DragFloat3("Velocity", (float*)&b->velocity, 0.01f);
+        physics_changed |= ImGui::DragFloat3("Acceleration", (float*)&b->acceleration, 0.01f);
     }
 
     if (ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::DragFloat("Mass", &b->mass, 0.01f, 0.0f, FLT_MAX, "%.3e");
-        ImGui::DragFloat("Radius", &b->radius, 0.01f, 0.0f, FLT_MAX);
-        ImGui::DragFloat("Damping", &b->damping, 0.001f, 0.0f, 1.0f);
+        physics_changed |= ImGui::DragFloat("Mass", &b->mass, 0.01f, 0.0f, FLT_MAX, "%.3e");
+        physics_changed |= ImGui::DragFloat("Radius", &b->radius, 0.01f, 0.0f, FLT_MAX);
+        physics_changed |= ImGui::DragFloat("Damping", &b->damping, 0.001f, 0.0f, 1.0f);
     }
+    if (physics_changed) predict_state_mark_dirty(&engine()->predict);
 
     if (ImGui::CollapsingHeader("Rotation")) {
         ImGui::DragFloat("Angle", &b->rotation.angle, 0.01f);

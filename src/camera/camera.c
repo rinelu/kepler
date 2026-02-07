@@ -131,7 +131,7 @@ static void camera_update_follow(CameraState* cam, float dt)
 void camera_update(CameraState* cam, float dt)
 {
     switch (cam->mode) {
-        case CAMERA_MODE_FREE: camera_update_free(cam, dt); break;
+        case CAMERA_MODE_FREE:   camera_update_free(cam, dt); break;
         case CAMERA_MODE_ORBIT:  camera_update_orbit(cam, dt);  break;
         case CAMERA_MODE_FOLLOW: camera_update_follow(cam, dt); break;
         default: break;

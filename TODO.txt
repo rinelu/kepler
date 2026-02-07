@@ -1,17 +1,24 @@
-Kepler – TODO Status Diff (as of v0.9.0)
-=======================================
+Kepler – TODO Status (as of v0.12.x)
+===================================
 
 DONE
 ----
 
 Physics
 - Adaptive physics sub-stepping
-- Automatic switch between N**2 gravity and Barnes–Hut
+- Automatic switch between N² gravity and Barnes–Hut
 - Deterministic fixed-timestep physics
 - Symplectic (Velocity Verlet) integration
 - Barnes–Hut traversal bugs fixed
 - Improved gravitational softening
 - Energy / momentum diagnostics and tracking
+
+Prediction
+- Trajectory prediction system
+- Stride-based prediction sampling
+- Editor-driven prediction invalidation
+- Freeze / rebuild prediction control
+- Configurable prediction timestep (dt)
 
 Rendering
 - Emissive stars
@@ -21,6 +28,7 @@ Rendering
 - Blackbody temperature → RGB star coloring
 - Selection ring rendering (billboarded, animated)
 - Improved visual radius scaling for massive bodies
+- Prediction path rendering
 
 Camera
 - Unified camera system (free / orbit / follow)
@@ -29,11 +37,7 @@ Camera
 - Mouse axis inversion via GUI
 - Runtime camera mode switching
 - Follow target selection via editor
-- Camera parameter tuning via GUI:
-  - Sensitivity
-  - Move speed
-  - Zoom speed
-  - Distance / yaw / pitch (orbit & follow)
+- Camera parameter tuning via GUI
 
 Interaction
 - Mouse picking / body selection
@@ -44,10 +48,12 @@ Tooling
 - Live runtime tuning of physics parameters
 - Engine / physics inspection panels
 - Per-body Inspector panel:
-  - Transform (position, velocity, acceleration)
-  - Physics parameters (mass, radius, damping)
-  - Rendering and emissive/light properties
+  - Transform
+  - Physics parameters
+  - Rendering / emissive properties
+  - Atmosphere parameters (basic)
 - Camera inspection and debugging panel
+- Pause + inspect mode
 
 
 PARTIALLY DONE
@@ -55,41 +61,40 @@ PARTIALLY DONE
 
 Physics
 - Barnes–Hut gravity
-  (works, but violates Newton’s 3rd law)
+  (functional, still violates Newton’s 3rd law)
 - Energy stability at high time scales
-  (improved, not guaranteed)
 - Adaptive sub-stepping heuristics
-  (still edge cases at extreme acceleration)
+  (edge cases at extreme acceleration)
 
 World Scale
 - Precision handling at large distances
-  (improved indirectly, no floating origin)
+  (no floating origin yet)
 
 Rendering
 - Atmospheres
-  (rim lighting exists, full atmospheres incomplete)
-- Orbit path visualization
-  (experimentation started, not integrated)
+  (parameters exposed, visuals still simple)
+- Orbit / trajectory visualization
+  (prediction exists, integration with editor UX ongoing)
 
 Camera
 - Camera follow at high velocities
-  (exists, damping and prediction incomplete)
+  (works, prediction-based smoothing incomplete)
 - FREE camera inertia / velocity model
-  (basic movement, no smoothing or acceleration model)
+  (no acceleration-based movement)
 
 Interaction
 - Selection visualization polish
-  (occlusion, scaling, depth interaction)
+  (occlusion, depth interaction)
 
 Tooling
 - Inspector edit persistence
-  (live edits not saved or undoable)
+  (no save / undo / redo)
 - Input system refactor
   (centralized, capture rules still evolving)
 
 Performance
-- Octree diagnostics and experimentation
-  (pooling/caching not finalized)
+- Barnes–Hut octree optimization
+  (no pooling or reuse yet)
 
 
 NOT STARTED
@@ -113,7 +118,6 @@ Physics Extensions
 - Relativistic corrections
 
 Tooling
-- Pause + inspect mode
 - Undo / redo system
 - Minimal always-on debug overlay
 
