@@ -101,17 +101,21 @@ WorldID world_add_body(World* world, const void* body_data)
 
     for (uint32_t i = 0; i < world->capacity; ++i) {
         WorldSlot* slot = &world->items[i];
-
         if (slot->alive) continue;
 
         memcpy(&slot->body, body_data, sizeof(Body));
         slot->alive = true;
+        slot->generation++; // increment generation
+        slot->body.id = world_id_make(i, slot->generation);
 
-        WorldID id = world_id_make(i, slot->generation);
-        slot->body.id = id;
+        if (!world->alive_indices)
+            world->alive_indices = malloc(sizeof(uint32_t) * world->capacity);
+        world->alive_indices[world->alive_count++] = i;
+
         world->count++;
+        world->revision++;
 
-        return id;
+        return slot->body.id;
     }
 
     return WORLD_ID_INVALID;
@@ -120,12 +124,22 @@ WorldID world_add_body(World* world, const void* body_data)
 void world_remove_body(World* world, WorldID id)
 {
     if (!world_id_matches(world, id)) return;
+    uint32_t idx = world_id_index(id);
+    if (idx >= world->capacity) return;
 
-    uint32_t index = world_id_index(id);
-    WorldSlot* slot = &world->items[index];
+    WorldSlot* slot = &world->items[idx];
+    if (!slot->alive || slot->generation != world_id_generation(id))
+        return;
 
     slot->alive = false;
     slot->generation++;
     slot->body.id = WORLD_ID_INVALID;
+
+    for (uint32_t i = 0; i < world->alive_count; ++i) {
+        if (world->alive_indices[i] != idx) continue;
+        world->alive_indices[i] = world->alive_indices[--world->alive_count];
+        break;
+    }
     world->count--;
+    world->revision++;
 }

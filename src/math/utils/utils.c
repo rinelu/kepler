@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "raymath.h"
 
 Vector3 blackbody_to_rgb(float kelvin)
 {

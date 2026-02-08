@@ -33,6 +33,11 @@ typedef struct {
     // FREE camera state
     Vector3 velocity;
 
+    // Cache
+    Vector3 forward;
+    Vector3 right;
+    Vector3 up;
+
     // Settings
     float sensitivity;
     float zoom_speed;

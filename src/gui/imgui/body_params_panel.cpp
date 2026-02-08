@@ -53,6 +53,15 @@ void body_params_panel(Body* b)
         ImGui::DragFloat("Metallic", &r->metallic, 0.01f, 0.0f, 1.0f);
     }
 
+    if (b->render.use_atmosphere && ImGui::CollapsingHeader("Atmosphere", ImGuiTreeNodeFlags_DefaultOpen)) {
+        BodyRender* r = &b->render;
+
+        ImGui::ColorEdit3("Color", (float*)&r->atmosphere_color);
+        ImGui::DragFloat("Thickness", &r->atmosphere_thickness, 0.005f, 0.01f, 1.0f, "%.3f");
+        ImGui::DragFloat("Intensity", &r->atmosphere_intensity, 0.05f, 0.0f, 10.0f, "%.2f");
+        ImGui::TextDisabled("Thickness is relative to planet radius");
+    }
+
     if (b->render.emits_light && ImGui::CollapsingHeader("Light / Emission", ImGuiTreeNodeFlags_DefaultOpen)) {
         BodyRender* r = &b->render;
         r->temperature = fmaxf(r->temperature, 1000.0f);
