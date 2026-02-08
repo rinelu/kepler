@@ -40,6 +40,10 @@ typedef struct {
     float roughness;
     float metallic;
 
+    Color atmosphere_color;
+    float atmosphere_thickness;
+    float atmosphere_intensity;
+
     Texture2D surface_texture;
     Texture2D normal_map;
 } BodyRender;

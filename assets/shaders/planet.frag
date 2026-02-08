@@ -17,9 +17,14 @@ out vec4 finalColor;
 float totalLightPower = 0.0;
 vec3 emittedColor = vec3(0.0);
 
-vec3 tonemap(vec3 c)
+vec3 tonemapACES(vec3 x)
 {
-    return c / (c + vec3(1.0));
+    const float a = 2.51;
+    const float b = 0.03;
+    const float c = 2.43;
+    const float d = 0.59;
+    const float e = 0.14;
+    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
 void main()
@@ -27,7 +32,7 @@ void main()
     vec3 linearBase = pow(baseColor.rgb, vec3(2.2));
 
     if (emissiveIntensity > 0.0) {
-        vec3 emitted = linearBase * emissiveIntensity;
+        vec3 emitted = tonemapACES(linearBase * emissiveIntensity);
         finalColor = vec4(emitted, 1.0);
         return;
     }
