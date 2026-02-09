@@ -2,6 +2,21 @@ Kepler – Revision History
 ================================
 Semantic versioning: MAJOR.MINOR.PATCH
 
+--------------------------------
+v0.13.0 – Atmospheres & Renderer Refactor
+--------------------------------
+
+- Added atmospheric rendering pass for celestial bodies
+- Refactored body renderer into begin/draw/end stages
+- Move RenderContext to its own file
+- Improved LOD selection using projected screen size
+- Rewrote camera system for stability and smoother controls
+- Cleaned up world iteration and body lifetime handling
+- General renderer, shader, and math cleanup
+
+Notes:
+- Atmospheres are view-based only (no shadows/eclipses yet)
+
 ------------------------------------------------
 v0.12.0 – Prediction & Editor Improvements
 ------------------------------------------------

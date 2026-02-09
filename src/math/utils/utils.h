@@ -1,6 +1,5 @@
 #pragma once
 #include "raylib.h"
-#include "raymath.h"
 
 #ifdef __cplusplus
 extern "C" {

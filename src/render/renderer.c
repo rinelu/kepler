@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "gui/gui_layer.h"
+#include "render/passes/atmosphere.h"
 #include "render/passes/bloom.h"
 #include "render/passes/celestial_render.h"
 #include "render/passes/glow.h"
@@ -33,6 +34,7 @@ Renderer* renderer_create(int width, int height, const char* title, bool vsync)
     ImGuiLayer_Init();
     NuklearLayer_Init();
 
+    atmosphere_init(&renderer->atmosphere);
     bloom_init(&renderer->bloom, width, height);
     glow_init(&renderer->glow);
     selection_init(&renderer->selection);
@@ -63,9 +65,11 @@ void renderer_destroy(Renderer* renderer)
 {
     if (!renderer) return;
 
+    atmosphere_shutdown(&renderer->atmosphere);
     selection_shutdown(&renderer->selection);
     glow_shutdown(&renderer->glow);
     bloom_shutdown(&renderer->bloom);
+
     NuklearLayer_Shutdown();
     ImGuiLayer_Shutdown();
     CloseWindow();
