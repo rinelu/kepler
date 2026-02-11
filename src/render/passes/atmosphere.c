@@ -1,5 +1,8 @@
 #include "atmosphere.h"
+#include "engine/engine.h"
 #include <assert.h>
+#include <raylib.h>
+#include <raymath.h>
 #include <rlgl.h>
 
 void atmosphere_init(Atmosphere* a)
@@ -7,6 +10,8 @@ void atmosphere_init(Atmosphere* a)
     *a = (Atmosphere){0};
 
     a->shader = LoadShader("assets/shaders/atmosphere.vert", "assets/shaders/atmosphere.frag");
+    a->material = LoadMaterialDefault();
+    a->material.shader = a->shader;
 
     a->loc_mvp        = GetShaderLocation(a->shader, "mvp");
     a->loc_model      = GetShaderLocation(a->shader, "model");
@@ -15,7 +20,10 @@ void atmosphere_init(Atmosphere* a)
     a->loc_radius     = GetShaderLocation(a->shader, "planetRadius");
     a->loc_thickness  = GetShaderLocation(a->shader, "atmoThickness");
     a->loc_intensity  = GetShaderLocation(a->shader, "intensity");
+    a->loc_planet_center = GetShaderLocation(a->shader, "planetCenter");
+    a->loc_light         = GetShaderLocation(a->shader, "lightDir");
 }
+
 void atmosphere_shutdown(Atmosphere* a)
 {
     if (!a) return;
@@ -39,9 +47,10 @@ void atmosphere_end(void)
     rlDisableColorBlend();
     rlEnableBackfaceCulling();
     rlEnableDepthMask();
+    rlDisableDepthTest();
 }
 
-void atmosphere_draw(Atmosphere* a, Mesh mesh, Material* material, Matrix model, Matrix mvp, Vector3 camera_pos,
+void atmosphere_draw(Atmosphere* a, Mesh mesh, Matrix model, Matrix mvp, Vector3 camera_pos, Vector3 planet_center,
                      Color color, float radius, float thickness, float intensity)
 {
     float col[3] = {
@@ -57,6 +66,10 @@ void atmosphere_draw(Atmosphere* a, Mesh mesh, Material* material, Matrix model,
     SetShaderValue(a->shader, a->loc_radius, &radius, SHADER_UNIFORM_FLOAT);
     SetShaderValue(a->shader, a->loc_thickness, &thickness, SHADER_UNIFORM_FLOAT);
     SetShaderValue(a->shader, a->loc_intensity, &intensity, SHADER_UNIFORM_FLOAT);
+    SetShaderValue(a->shader, a->loc_planet_center, &planet_center, SHADER_UNIFORM_VEC3);
 
-    DrawMesh(mesh, *material, model);
+    Vector3 light_dir = Vector3Normalize(Vector3Subtract(engine()->renderer->ctx.lights[0].position, planet_center));
+    SetShaderValue(a->shader, a->loc_light, &light_dir, SHADER_UNIFORM_VEC3);
+
+    DrawMesh(mesh, a->material, model);
 }

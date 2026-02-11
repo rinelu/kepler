@@ -1,9 +1,11 @@
 #include "body_render.h"
+#include "engine/engine.h"
 #include "raylib.h"
 #include <raymath.h>
 #include <rlgl.h>
 #include <assert.h>
 #include "core/global.h"
+#include "render/passes/atmosphere.h"
 
 void body_render_init(BodyRender* render)
 {
@@ -29,7 +31,7 @@ void body_render_init(BodyRender* render)
         g_ba_loaded = true;
     }
     for (int lod = 0; lod < 3; lod++) {
-        g_default_mesh.sphere_model[lod] .materials[0].shader = g_default_shader.shader;
+        g_default_mesh.sphere_model[lod].materials[0].shader = g_default_shader.shader;
     }
 
     render->shader = &g_default_shader;

@@ -30,6 +30,16 @@ Rendering
 - Improved visual radius scaling for massive bodies
 - Prediction path rendering
 
+Atmospheres
+- Dedicated atmosphere render pass
+- Planet-relative shader space
+- View-dependent scattering model
+- Light-direction-aware atmospheric lighting
+- Additive blending with depth control
+- LOD-synced atmosphere mesh selection
+- Editor-exposed atmosphere parameters
+- Shader/material ownership cleanup
+
 Camera
 - Unified camera system (free / orbit / follow)
 - Smooth camera interpolation
@@ -51,7 +61,8 @@ Tooling
   - Transform
   - Physics parameters
   - Rendering / emissive properties
-  - Atmosphere parameters (basic)
+  - Atmosphere parameters
+- Color editor helpers for raylib Color types
 - Camera inspection and debugging panel
 - Pause + inspect mode
 
@@ -72,19 +83,17 @@ World Scale
 
 Rendering
 - Atmospheres
-  (parameters exposed, visuals still simple)
+  (no shadows, eclipses, or multiple scattering)
 - Orbit / trajectory visualization
-  (prediction exists, integration with editor UX ongoing)
+  (prediction exists, UX polish ongoing)
+- Selection visualization polish
+  (occlusion / depth edge cases)
 
 Camera
 - Camera follow at high velocities
   (works, prediction-based smoothing incomplete)
 - FREE camera inertia / velocity model
   (no acceleration-based movement)
-
-Interaction
-- Selection visualization polish
-  (occlusion, depth interaction)
 
 Tooling
 - Inspector edit persistence
@@ -104,8 +113,10 @@ World Scale
 - Floating-origin support
 
 Rendering & Visualization
-- Starfield / sky background
+- Atmospheric shadowing / eclipses
+- Starfield / procedural sky background
 - Debug vectors (velocity, acceleration, force)
+- Depth-aware atmosphere compositing improvements
 
 Simulation Features
 - Collisions
