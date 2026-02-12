@@ -84,7 +84,7 @@ jobs:
       - name: Install raylib wasm
         run: |
           mkdir -p thirdparty/raylib/lib/wasm
-          cp raylib/src/libraylib.a thirdparty/raylib/lib/wasm/
+          cp raylib/src/libraylib.web.a thirdparty/raylib/lib/wasm/libraylib.a
 
       - name: Configure (WASM)
         run: |
