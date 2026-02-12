@@ -93,10 +93,11 @@ jobs:
           cd build-wasm
           emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Build (WASM)
         run: |
           cd build-wasm
           cmake --build . -j
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
