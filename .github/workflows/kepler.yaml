@@ -76,16 +76,6 @@ jobs:
         run: |
           git clone --depth=1 https://github.com/raysan5/raylib.git
 
-      - name: Build raylib (Web)
-        run: |
-          cd raylib/src
-          make PLATFORM=PLATFORM_WEB
-
-      - name: Install raylib wasm
-        run: |
-          mkdir -p thirdparty/raylib/lib/wasm
-          cp raylib/src/libraylib.web.a thirdparty/raylib/lib/wasm/libraylib.a
-
       - name: Configure (WASM)
         run: |
           mkdir build-wasm
