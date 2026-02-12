@@ -123,6 +123,10 @@ if(WIN32)
 endif()
 
 if(EMSCRIPTEN)
+    target_link_options(kepler PRIVATE
+        "-sUSE_GLFW=3"
+        "-sASYNCIFY"
+    )
     set_target_properties(kepler PROPERTIES
         SUFFIX ".html"
     )

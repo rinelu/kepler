@@ -67,7 +67,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
@@ -92,9 +91,6 @@ jobs:
           mkdir build-wasm
           cd build-wasm
           emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: Build (WASM)
         run: |
