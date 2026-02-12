@@ -67,8 +67,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
 
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -100,3 +98,5 @@ jobs:
           cd build-wasm
           cmake --build . -j
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
