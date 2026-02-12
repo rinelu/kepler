@@ -72,6 +72,20 @@ jobs:
         with:
           version: latest
 
+      - name: Clone raylib
+        run: |
+          git clone --depth=1 https://github.com/raysan5/raylib.git
+
+      - name: Build raylib (Web)
+        run: |
+          cd raylib/src
+          make PLATFORM=PLATFORM_WEB
+
+      - name: Install raylib wasm
+        run: |
+          mkdir -p thirdparty/raylib/lib/wasm
+          cp raylib/src/libraylib.a thirdparty/raylib/lib/wasm/
+
       - name: Configure (WASM)
         run: |
           mkdir build-wasm
@@ -82,10 +96,4 @@ jobs:
         run: |
           cd build-wasm
           cmake --build . -j
-
-      - name: Upload WASM artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: kepler-wasm
-          path: build-wasm/
 
