@@ -3,6 +3,27 @@ Kepler – Revision History
 Semantic versioning: MAJOR.MINOR.PATCH
 
 --------------------------------
+v0.13.1 – Atmosphere Rewrite & Shader Improvements
+--------------------------------
+
+Changes
+- Rewrote atmosphere shader to operate in planet-relative space
+- Added physically-inspired view-dependent scattering model
+- Added planetCenter and lightDir uniforms
+- Atmosphere lighting now responds to primary light direction
+- Refactored atmosphere pass:
+    - Atmosphere now owns its Material
+    - Simplified atmosphere_draw() API (removed external Material parameter)
+- Synced atmosphere LOD selection with projected body size
+- Fixed shader filename typo (atmoshpere -> atmosphere)
+- Added ImGui color helper wrappers for raylib Color types
+- Minor renderer state and material cleanup
+
+Notes
+- Atmospheres are still additive and do not cast or receive shadows
+- No eclipse handling yet
+
+--------------------------------
 v0.13.0 – Atmospheres & Renderer Refactor
 --------------------------------
 

@@ -1,0 +1,59 @@
+name: Deploy Kepler Web
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+      - name: Configure (WASM)
+        run: |
+          mkdir build-wasm
+          cd build-wasm
+          emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (WASM)
+        run: |
+          cd build-wasm
+          cmake --build . -j
+
+      - name: Prepare site folder
+        run: |
+          mkdir site
+          cp build-wasm/*.html site/
+          cp build-wasm/*.js site/ || true
+          cp build-wasm/*.wasm site/ || true
+          cp build-wasm/*.data site/ || true
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

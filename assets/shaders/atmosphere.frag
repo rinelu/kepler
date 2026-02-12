@@ -4,6 +4,8 @@ in vec3 worldPos;
 
 uniform vec3 cameraPos;
 uniform vec3 atmoColor;
+uniform vec3 planetCenter;
+uniform vec3 lightDir;
 
 uniform float planetRadius;
 uniform float atmoThickness;
@@ -43,7 +45,7 @@ float sampleAtmosphere(vec3 ro, vec3 rd)
         float t = t0 + stepSize * (float(i) + 0.5);
         vec3 p = ro + rd * t;
 
-        float height = length(p) - planetRadius;
+        float height = length(p - planetCenter) - planetRadius;
         float h = clamp(height / atmoThickness, 0.0, 1.0);
 
         float density = exp(-h * 4.0);
@@ -59,19 +61,23 @@ float saturate(float x) {
 
 void main()
 {
-    vec3 ro = cameraPos;
+    vec3 ro = cameraPos - planetCenter; 
     vec3 rd = normalize(worldPos - cameraPos);
-
     float opticalDepth = sampleAtmosphere(ro, rd);
 
-    float alpha = 1.0 - exp(-opticalDepth * intensity);
-    alpha = clamp(alpha, 0.0, 0.6);
+    vec3 normal  = normalize(worldPos - planetCenter);
+    vec3 viewDir = normalize(worldPos - cameraPos);
 
-    vec3 normal = normalize(worldPos);
-    float horizon = pow(1.0 - saturate(dot(normal, -rd)), 2.5);
+    float NdotL     = dot(normal, lightDir);
+    float sunAmount = clamp(NdotL * 0.5 + 0.5, 0.0, 1.0);
 
-    vec3 color = atmoColor * horizon;
+    float viewAmount  = pow(1.0 - max(dot(normal, -viewDir), 0.0), 3.0);
+    float backScatter = pow(1.0 - abs(NdotL), 2.0);
+    float scattering  = (sunAmount * 0.7 + backScatter * 0.3) * viewAmount;
 
+    float alpha = (1.0 - exp(-opticalDepth * intensity)) * scattering;
+    alpha = clamp(alpha, 0.0, 1.0);
+
+    vec3 color = atmoColor * alpha;
     fragColor = vec4(color, alpha);
 }
-

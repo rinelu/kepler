@@ -1,4 +1,5 @@
 #include "engine/engine.h"
+#include "gui/imgui/color_edit.h"
 #include "raylib.h"
 #include "world/body.h"
 #include "imgui.h"
@@ -47,8 +48,7 @@ void body_params_panel(Body* b)
 
         ImGui::Separator();
 
-        ImGui::ColorEdit4("Base Color", (float*)&r->base_color);
-
+        ImGui_ColorEdit4_Color("Base Color", &r->base_color);
         ImGui::DragFloat("Roughness", &r->roughness, 0.01f, 0.0f, 1.0f);
         ImGui::DragFloat("Metallic", &r->metallic, 0.01f, 0.0f, 1.0f);
     }
@@ -56,7 +56,7 @@ void body_params_panel(Body* b)
     if (b->render.use_atmosphere && ImGui::CollapsingHeader("Atmosphere", ImGuiTreeNodeFlags_DefaultOpen)) {
         BodyRender* r = &b->render;
 
-        ImGui::ColorEdit3("Color", (float*)&r->atmosphere_color);
+        ImGui_ColorEdit3_Color("Color", &r->atmosphere_color);
         ImGui::DragFloat("Thickness", &r->atmosphere_thickness, 0.005f, 0.01f, 1.0f, "%.3f");
         ImGui::DragFloat("Intensity", &r->atmosphere_intensity, 0.05f, 0.0f, 10.0f, "%.2f");
         ImGui::TextDisabled("Thickness is relative to planet radius");

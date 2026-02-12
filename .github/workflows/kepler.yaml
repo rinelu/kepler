@@ -9,14 +9,9 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
-      - name: Clone GIT repo
-        uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: brew install cmake ninja
-
-      - name: Build
-        run: make
+      - uses: actions/checkout@v4
+      - run: brew install cmake ninja
+      - run: make
 
   ubuntu:
     runs-on: ubuntu-latest
@@ -30,8 +25,7 @@ jobs:
             cxx: clang++
 
     steps:
-      - name: Clone GIT repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install system dependencies
         run: |
@@ -51,8 +45,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - name: Clone GIT repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -68,3 +61,29 @@ jobs:
       - name: Build
         shell: msys2 {0}
         run: make
+
+  emscripten:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+      - name: Clone raylib
+        run: |
+          git clone --depth=1 https://github.com/raysan5/raylib.git
+
+      - name: Configure (WASM)
+        run: |
+          mkdir build-wasm
+          cd build-wasm
+          emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build (WASM)
+        run: |
+          cd build-wasm
+          cmake --build . -j
+
