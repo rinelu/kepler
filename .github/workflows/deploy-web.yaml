@@ -26,7 +26,11 @@ jobs:
         run: |
           mkdir build-wasm
           cd build-wasm
-          emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
+          emcmake cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_EXE_LINKER_FLAGS="\
+              --shell-file ${GITHUB_WORKSPACE}/web/shell.html \
+              --preload-file ${GITHUB_WORKSPACE}/assets"
 
       - name: Build (WASM)
         run: |
