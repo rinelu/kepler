@@ -36,7 +36,7 @@ jobs:
       - name: Prepare site folder
         run: |
           mkdir site
-          cp build-wasm/*.html site/
+          cp build-wasm/kepler.html site/index.html
           cp build-wasm/*.js site/ || true
           cp build-wasm/*.wasm site/ || true
           cp build-wasm/*.data site/ || true
