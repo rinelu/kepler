@@ -1,6 +1,6 @@
 # Kepler
 
-A 3D planet simulator (C + raylib)
+A 3D N-Body simulator (C + raylib)
 
 This is **work in progress.**
 
